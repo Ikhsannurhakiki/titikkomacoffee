@@ -61,7 +61,7 @@
             <li>
                 <div class="flex justify-center gap-4">
 
-                    <x-navlink href="/menus" title="Menu" :active="request()->is('menus*')">
+                    <x-navlink href="{{ route('products') }}" title="Products" :active="request()->is('products*')">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M5 4a1 1 0 00-2 0v12a1 1 0 002 0V4zM9 4a1 1 0 00-2 0v12a1 1 0 002 0V4zM13 4a1 1 0 00-2 0v12a1 1 0 002 0V4zM17 4a1 1 0 00-2 0v12a1 1 0 002 0V4z">

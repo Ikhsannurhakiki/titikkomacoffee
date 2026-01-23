@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
 
+Volt::route('/products', 'product-screen')->name('products');
 Route::get('/', function () {
     return view('welcome');
 });
@@ -17,4 +19,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+
+
+require __DIR__ . '/auth.php';

@@ -3,20 +3,25 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Livewire\Volt\Volt; // <--- JANGAN LUPA IMPORT INI
+use Livewire\Volt\Volt;
 
-class AppServiceProvider extends ServiceProvider
+class VoltServiceProvider extends ServiceProvider
 {
+    /**
+     * Register services.
+     */
     public function register(): void
     {
         //
     }
 
+    /**
+     * Bootstrap services.
+     */
     public function boot(): void
     {
-        // Beritahu Volt secara paksa lokasi filenya
         Volt::mount([
-            resource_path('views/livewire'),
+            config('livewire.view_path', resource_path('views/livewire')),
             resource_path('views/pages'),
         ]);
     }
