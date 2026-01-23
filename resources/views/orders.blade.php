@@ -1,4 +1,4 @@
-<div class="flex flex-col h-screen bg-third-light shadow-xl border-l border-gray-200 w-full max-w-[340px] ml-auto">
+<div class="flex flex-col h-screen bg-white shadow-xl border-l border-gray-200 w-full max-w-[340px] ml-auto">
 
     <div class="p-3 flex items-center justify-between border-b border-gray-100 gap-2">
         <button
@@ -31,50 +31,55 @@
 
     <div class="flex-1 overflow-y-auto p-3 space-y-2">
         <x-order-item-card qty="1" name="Thai Style Fried Noodles" price="40.00" originalPrice="50.00"
-            description="Medium" discount="20" expanded="true" />
+            description="Medium" discount="20" :expanded="true" />
 
-        <x-order-item-card qty="1" name="Schezwan Egg Noodles" price="25.00" />
+        <x-order-item-card qty="1" name="Thai Style Fried Noodles" price="40.00" originalPrice="50.00"
+            description="Medium" discount="20" />
+
+        <x-order-item-card qty="1" name="Schezwan Egg Noodles" price="25.00" :expanded="false" />
     </div>
 
-    <div class="bg-secondary p-3 border-t border-gray-200">
-        <div class="bg-third-light rounded-lg p-2.5 flex justify-between items-center mb-4">
-            <span class="text-xs font-bold text-gray-700">Add</span>
+    <div class="bg-gray-50 p-4 border-t border-gray-200">
+        <div class="bg-white border border-gray-200 rounded-xl p-2.5 flex justify-between items-center mb-4 shadow-sm">
+            <span class="text-[10px] uppercase font-black text-gray-400">Add Extras</span>
             <div class="flex gap-3 text-[10px] font-bold text-secondary uppercase">
-                <button>Disc</button>
-                <button>Coupon</button>
-                <button>Note</button>
+                <button class="hover:text-primary transition">Disc</button>
+                <button class="hover:text-primary transition">Coupon</button>
+                <button class="hover:text-primary transition">Note</button>
             </div>
         </div>
 
-        <div class="space-y-1.5 mb-4">
-            <div class="flex justify-between text-[11px] text-gray-100/80 font-medium uppercase tracking-wider">
+        <div class="space-y-2 mb-4 px-1">
+            <div class="flex justify-between text-[11px] text-gray-500 font-bold uppercase tracking-wider">
                 <span>Subtotal</span>
-                <span class="font-bold">$200.00</span>
+                <span class="text-secondary">$200.00</span>
             </div>
-            <div class="flex justify-between text-[11px] text-gray-100/80 font-medium uppercase tracking-wider">
-                <span>Tax</span>
-                <span class="font-bold">$45.00</span>
+            <div class="flex justify-between text-[11px] text-gray-500 font-bold uppercase tracking-wider">
+                <span>Tax (10%)</span>
+                <span class="text-secondary">$45.00</span>
             </div>
-            <div class="flex justify-between pt-1.5 border-t border-white/10 mt-1">
-                <span class="text-xs font-black text-white uppercase italic">Total</span>
-                <span class="text-sm font-black text-white">$195.00</span>
+            <div class="flex justify-between pt-2 border-t border-gray-200 mt-2">
+                <span class="text-xs font-black text-secondary uppercase italic">Payable Amount</span>
+                <span class="text-lg font-black text-primary">$195.00</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-3">
             <button
-                class="flex flex-col items-center justify-center bg-[#FF8A1E] text-white py-2.5 rounded-lg font-bold hover:brightness-95 transition text-[10px] uppercase">
-                <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                class="flex flex-col items-center justify-center bg-secondary text-white py-3 rounded-xl font-bold hover:bg-secondary/90 active:scale-95 transition-all text-[10px] uppercase shadow-md shadow-secondary/10">
+                <svg class="w-5 h-5 mb-1 opacity-80" fill="none" stroke="currentColor" stroke-width="2.5"
+                    viewBox="0 0 24 24">
                     <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Hold
+                Hold Order
             </button>
+
             <button
-                class="flex flex-col items-center justify-center bg-[#00B929] text-white py-2.5 rounded-lg font-bold hover:brightness-95 transition text-[10px] uppercase">
-                <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                class="flex flex-col items-center justify-center bg-primary text-white py-3 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase shadow-md shadow-primary/20">
+                <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Proceed
+                Pay Now
             </button>
         </div>
     </div>

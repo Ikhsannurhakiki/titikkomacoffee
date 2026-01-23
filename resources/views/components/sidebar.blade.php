@@ -10,11 +10,15 @@
 </button>
 
 <aside id="default-sidebar"
-    class="fixed top-0 left-0 z-40 w-35 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-secondary"
+    class="fixed top-0 left-0 z-40 w-45 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
     aria-label="Sidenav">
-    <img src="{{ asset('images/logo-text.png') }}" alt="Logo" class="mx-auto my-1 w-full max-w-[250px] h-auto">
+    <div class="flex items-center justify-center p-1 h-15 shrink-0">
+        <img src="{{ asset('images/logo-text-v2.png') }}" alt="Logo"
+            class="h-30 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity">
+    </div>
+    <div class="pt-2 mt-2 space-y-2 border-t border-gray-200 dark:border-gray-700"></div>
     <div
-        class="overflow-y-auto py-5 px-3 h-full bg-grey-200 border-r border-gray-200 dark:bg-third-light dark:border-bluex`-700">
+        class="overflow-y-auto py-5 px-3 h-full bg-grey-200 border-r border-gray-200 dark:bg-white dark:border-bluex`-700">
         <ul class="space-y-2">
             <li>
                 <div class="flex justify-center gap-4">

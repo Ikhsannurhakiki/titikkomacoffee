@@ -21,9 +21,9 @@
     <div class="flex items-center gap-3 min-w-0">
         <div class="relative shrink-0">
             <img src="{{ asset('images/dummy-item.png') }}" alt="{{ $name }}"
-                class="w-12 h-12 rounded-xl object-cover shadow-sm border border-gray-100">
+                class="w-12 h-12 rounded-xl object-cover shadow-sm border border-secondary-100">
             <span
-                class="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
+                class="absolute -top-2 -right-2  text-white text-2xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-third-light bg-secondary shadow-sm">
                 {{ $qty }}
             </span>
         </div>
