@@ -13,6 +13,10 @@
         Figtree, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
         "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
+    --text-title: 1.25rem;
+    --text-subtitle: 0.875rem;
+    --text-caption: 0.75rem;
+
     --color-primary: #31221a;
     --color-primary-light: #4a3a31;
     --color-secondary: #9e7148;

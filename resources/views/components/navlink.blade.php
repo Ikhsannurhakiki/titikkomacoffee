@@ -17,7 +17,8 @@
         {{ $slot }}
     </div>
 
-    <span class="mt-1.5 font-bold text-primary group-hover:text-primary-light text-center leading-tight">
+    <span
+        class="mt-1.5 font-bold text-primary group-hover:text-primary-light text-center leading-tight text-subtitle transition duration-75">
         {{ $title }}
     </span>
 </a>

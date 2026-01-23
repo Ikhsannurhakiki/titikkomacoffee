@@ -10,8 +10,9 @@
 </button>
 
 <aside id="default-sidebar"
-    class="fixed top-0 left-0 z-40 w-35 h-screen transition-transform -translate-x-full sm:translate-x-0"
+    class="fixed top-0 left-0 z-40 w-35 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-secondary"
     aria-label="Sidenav">
+    <img src="{{ asset('images/logo-text.png') }}" alt="Logo" class="mx-auto my-1 w-full max-w-[250px] h-auto">
     <div
         class="overflow-y-auto py-5 px-3 h-full bg-grey-200 border-r border-gray-200 dark:bg-third-light dark:border-bluex`-700">
         <ul class="space-y-2">
@@ -100,7 +101,7 @@
                     </x-navlink>
                 </div>
             </li>
-            <li>
+            {{-- <li>
                 <div class="flex justify-center gap-4">
                     <x-navlink href="{{ route('logout') }}" title="Logout"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -114,7 +115,7 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                     @csrf
                 </form>
-            </li>
+            </li> --}}
         </ul>
     </div>
 </aside>

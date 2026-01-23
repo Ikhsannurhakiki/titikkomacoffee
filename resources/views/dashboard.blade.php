@@ -35,7 +35,7 @@
             @yield('content')
         </main>
 
-        <aside class="cart">
+        <aside class="orders">
             @include('orders')
         </aside>
     </div>
