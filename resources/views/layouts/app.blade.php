@@ -13,13 +13,13 @@
     <body class="font-sans antialiased bg-gray-100 overflow-hidden">
         <div class="flex h-screen w-full">
             {{-- Kolom 1: Sidebar Kiri (Tetap) --}}
-            <aside class="w-64 bg-white border-r shrink-0">
+            <aside class="w-45 bg-white border-r shrink-0">
                 @include('components.sidebar')
             </aside>
 
             {{-- Kolom 2: Area Konten (Dinamis) --}}
             {{-- Hapus semua padding/overflow di sini agar diatur oleh isi $slot --}}
-            <main id="main-content" class="flex-1 flex overflow-hidden">
+            <main id="main-content" class="w-full h-screen">
                 {{ $slot }}
             </main>
         </div>

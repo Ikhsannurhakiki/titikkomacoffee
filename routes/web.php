@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Volt::route('/products', 'product-screen')->name('products');
+Volt::route('/pos', 'pos-screen')->name('pos');
+
 Route::get('/', function () {
     return view('welcome');
 });

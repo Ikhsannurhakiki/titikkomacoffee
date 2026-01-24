@@ -17,7 +17,7 @@
             <img src="{{ asset('images/logo-text-v2.png') }}" alt="Logo"
                 class="h-30 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity">
         </div>
-        <div class="pt-2 mt-2 space-y-2 border-t border-gray-200 dark:border-gray-700"></div>
+        <div class="pt-2 mt-2 space-y-2 border-t border-gray-200 dark:border-gray-700 "></div>
         <div
             class="overflow-y-auto py-5 px-3 h-full bg-grey-200 border-r border-gray-200 dark:bg-white dark:border-bluex`-700">
             <ul class="space-y-2">
@@ -65,7 +65,7 @@
                 <li>
                     <div class="flex justify-center gap-4">
                         {{-- Menu Products --}}
-                        <x-navlink href="{{ route('products') }}" :active="request()->is('products*')" wire:navigate title="Products">
+                        <x-navlink href="{{ route('pos') }}" :active="request()->routeIs('pos')" wire:navigate title="Products">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
