@@ -2,7 +2,7 @@
     'qty' => 1,
     'name' => '',
     'price' => 0,
-    'image' => 'public\images\dummy-item.png', // Default placeholder
+    'image' => 'public/images/dummy-item.png', // Default placeholder
     'originalPrice' => null,
     'description' => null,
     'expanded' => false,

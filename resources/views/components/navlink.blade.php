@@ -4,7 +4,7 @@
     'active' => false,
 ])
 
-<a href="{{ $href }}"
+<a href="{{ $href }}" wire:navigate
     {{ $attributes->merge([
         'class' =>
             'flex flex-row items-center gap-3 w-full px-4 py-3 text-sm rounded-xl group ' .
