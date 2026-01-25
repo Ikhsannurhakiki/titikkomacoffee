@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Volt\Volt; // <--- JANGAN LUPA IMPORT INI
+use Livewire\Volt\Volt;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Beritahu Volt secara paksa lokasi filenya
+        Paginator::defaultView('vendor.pagination.tailwind');
         Volt::mount([
             resource_path('views/livewire'),
             resource_path('views/pages'),

@@ -63,7 +63,7 @@ new class extends Component {
                 ->where('name', 'like', "%{$this->search}%")
                 ->orWhere('position', 'like', "%{$this->search}%")
                 ->latest()
-                ->paginate(10),
+                ->paginate(1),
         ];
     }
 }; ?>
@@ -153,7 +153,7 @@ new class extends Component {
             </tbody>
         </table>
         <div class="p-4 bg-gray-50">
-            {{ $staffs->links() }}
+            {{ $staffs->links('vendor.pagination.tailwind') }}
         </div>
     </div>
 

@@ -9,6 +9,8 @@ use Livewire\WithPagination;
 new class extends Component {
     use WithFileUploads, WithPagination;
 
+    protected $paginationTheme = 'tailwind';
+
     public $search = '';
     public $showModal = false;
 
@@ -175,8 +177,8 @@ new class extends Component {
             </tbody>
         </table>
         {{-- Pagination Links --}}
-        <div class="p-4 bg-secondary border-t border-gray-100 text-white">
-            {{ $products->links() }}
+        <div class="p-4 bg-white border-t border-gray-100 text-white">
+            {{ $products->links('vendor.pagination.tailwind') }}
         </div>
 
     </div>
