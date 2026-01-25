@@ -22,7 +22,13 @@ new class extends Component {
     public function addToCart($productId)
     {
         $product = Product::find($productId);
+
         if (!$product) {
+            return;
+        }
+
+        if (!$product->is_available) {
+            session()->flash('error', 'Produk ini sedang Out of Stock!');
             return;
         }
 
@@ -37,6 +43,7 @@ new class extends Component {
                 'image' => $product->image,
             ];
         }
+
         $this->syncSession();
     }
 
@@ -83,12 +90,10 @@ new class extends Component {
 }; ?>
 
 <div class="flex h-screen w-full overflow-hidden bg-gray-50/50">
-    {{-- BAGIAN KIRI: DAFTAR PRODUK --}}
+
     <div class="flex-1 p-4 overflow-y-auto min-w-0">
-        {{-- Header & Search --}}
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-xl font-black text-secondary uppercase tracking-tight">Titik Koma <span
-                    class="text-primary">.</span></h1>
+        {{-- Kategori Tabs & Search Bar --}}
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
             <div class="relative w-72">
                 <input type="text" wire:model.live="search" placeholder="Cari menu..."
                     class="w-full pl-10 pr-4 py-2 rounded-xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-primary transition-all shadow-sm text-sm font-medium">
@@ -98,10 +103,6 @@ new class extends Component {
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </div>
-        </div>
-
-        {{-- Kategori Tabs --}}
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
             <button wire:click="setCategory(null)"
                 class="px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ !$selectedCategory ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-100' }}">
                 Semua
@@ -115,9 +116,10 @@ new class extends Component {
         </div>
 
         {{-- Grid Produk --}}
-        <div class="grid grid-cols-1 sm:grid-cols- md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-4no">
+        <div class="grid grid-cols-1 sm:grid-cols- md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             @forelse($products as $product)
-                <div wire:click="addToCart({{ $product->id }})" wire:key="product-{{ $product->id }}">
+                <div wire:click="addToCart({{ $product->id }})" wire:key="product-{{ $product->id }}"
+                    @disabled(!$product->is_available)>
                     <x-product-item-card :product="$product" />
                 </div>
             @empty
