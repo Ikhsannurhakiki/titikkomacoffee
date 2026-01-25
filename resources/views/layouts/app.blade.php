@@ -7,22 +7,24 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Titik Koma POS') }}</title>
 
+        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
+            rel="stylesheet">
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
 
     <body class="font-sans antialiased bg-gray-100 overflow-hidden">
         <div class="flex h-screen w-full">
-            {{-- Kolom 1: Sidebar Kiri (Tetap) --}}
             <aside class="w-45 bg-white border-r shrink-0">
                 @include('components.sidebar')
             </aside>
-
-            {{-- Kolom 2: Area Konten (Dinamis) --}}
-            {{-- Hapus semua padding/overflow di sini agar diatur oleh isi $slot --}}
             <main id="main-content" class="w-full h-screen">
                 {{ $slot }}
             </main>
         </div>
+        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
     </body>
 
     </html>

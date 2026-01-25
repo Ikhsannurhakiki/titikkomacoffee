@@ -7,6 +7,8 @@ use Livewire\Volt\Volt;
 Volt::route('/products', 'product-screen')->name('products');
 Volt::route('/pos', 'pos-screen')->name('pos');
 Volt::route('/staff-active', 'staff-active')->name('staff-active');
+Volt::route('/product-form', 'product-form')->name('product-form');
+Volt::route('/product-manager', 'product-manager')->name('product-manager');
 
 Route::get('/', function () {
     return view('welcome');

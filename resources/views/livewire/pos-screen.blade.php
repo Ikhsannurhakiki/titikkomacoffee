@@ -70,7 +70,7 @@ new class extends Component {
     public function with()
     {
         $subtotal = collect($this->cart)->sum(fn($item) => $item['price'] * $item['qty']);
-        $tax = $subtotal * 0.1; // Pajak 10%
+        $tax = $subtotal * 0.1;
 
         return [
             'products' => Product::query()->when($this->search, fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))->when($this->selectedCategory, fn($q) => $q->where('category_id', $this->selectedCategory))->get(),
@@ -115,9 +115,8 @@ new class extends Component {
         </div>
 
         {{-- Grid Produk --}}
-        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols- md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-4no">
             @forelse($products as $product)
-                {{-- Memanggil Blade Component Card --}}
                 <div wire:click="addToCart({{ $product->id }})" wire:key="product-{{ $product->id }}">
                     <x-product-item-card :product="$product" />
                 </div>
@@ -127,7 +126,6 @@ new class extends Component {
         </div>
     </div>
 
-    {{-- BAGIAN KANAN: KERANJANG (SESUAI UI KAMU) --}}
     <aside class="flex flex-col h-screen bg-white shadow-xl border-l border-gray-200 w-full max-w-[340px] ml-auto">
         {{-- Header Keranjang --}}
         <div class="p-3 flex items-center justify-between border-b border-gray-100 gap-2">

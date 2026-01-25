@@ -36,14 +36,26 @@
 
 
                 </li>
-                <li>
+                {{-- <li>
                     <div class="flex justify-center gap-4">
                         {{-- Menu Users --}}
-                        <x-navlink href="/users" title="Users">
+                {{-- <x-navlink href="/users" title="Users">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
                                     clip-rule="evenodd"></path>
+                            </svg>
+                        </x-navlink>
+                    </div>
+                </li> --}}
+                <li>
+                    <div class="flex justify-center gap-4">
+                        {{-- Menu Cashier --}}
+                        <x-navlink href="{{ route('pos') }}" :active="request()->routeIs('pos')" wire:navigate title="Cashier">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                         </x-navlink>
                     </div>
@@ -64,18 +76,6 @@
                 </li>
                 <li>
                     <div class="flex justify-center gap-4">
-                        {{-- Menu Products --}}
-                        <x-navlink href="{{ route('pos') }}" :active="request()->routeIs('pos')" wire:navigate title="Products">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M18 8h1a4 4 0 010 8h-1M2 8a2 2 0 012-2h11a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V8z" />
-                            </svg>
-                        </x-navlink>
-                    </div>
-                </li>
-                <li>
-                    <div class="flex justify-center gap-4">
                         <x-navlink href="/customers" title="Customers" :active="request()->is('customers*')">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -85,6 +85,30 @@
                             </svg>
                         </x-navlink>
                     </div>
+                </li>
+            </ul>
+            <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
+                <li>
+                    <div class="flex justify-center gap-4">
+                        {{-- Menu Products --}}
+                        <x-navlink href="{{ route('product-manager') }}" :active="request()->routeIs('product-manager')" wire:navigate
+                            title="Menu Items">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M18 8h1a4 4 0 010 8h-1M2 8a2 2 0 012-2h11a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V8z" />
+                            </svg>
+                        </x-navlink>
+                    </div>
+                </li>
+                <li>
+                    <x-navlink href="staff-active" title="Staff" :active="request()->is('staffs*')">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 00-7 7v1h12v-1a7 7 0 00-7-7z">
+                            </path>
+                        </svg>
+                    </x-navlink>
                 </li>
                 <li>
                     <div class="flex justify-center gap-4">
@@ -98,17 +122,6 @@
                             </svg>
                         </x-navlink>
                     </div>
-                </li>
-            </ul>
-            <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
-                <li>
-                    <x-navlink href="staff-active" title="Staff" :active="request()->is('staffs*')">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 00-7 7v1h12v-1a7 7 0 00-7-7z">
-                            </path>
-                        </svg>
-                    </x-navlink>
                 </li>
             </ul>
             <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">

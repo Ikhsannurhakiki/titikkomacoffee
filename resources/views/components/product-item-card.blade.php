@@ -4,9 +4,9 @@
     class="group bg-white p-2 rounded-lg shadow-sm border border-gray-100 hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
 
     <div class="relative mb-2 aspect-square overflow-hidden rounded-lg">
-        <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/dummy-item.png') }}"
-            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-
+        <img src="{{ $product->getFirstMediaUrl('thumbnail') ?: asset('images/logo.png') }}"
+            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            alt="{{ $product->name }}">
         @if ($product->stock <= 5)
             <span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-md font-bold">
                 Stok Tipis

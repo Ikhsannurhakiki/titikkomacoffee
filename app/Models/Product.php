@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
+    use InteractsWithMedia;
     protected $fillable = [
         'category_id',
         'name',
@@ -15,17 +18,15 @@ class Product extends Model
         'description',
         'price',
         'image',
-        'is_active',
+        'is_available',
         'stock'
     ];
 
-    // Relasi ke Category
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    // Mutator otomatis buat Slug saat simpan nama
     protected static function boot()
     {
         parent::boot();
@@ -34,7 +35,6 @@ class Product extends Model
         });
     }
 
-    // Helper untuk format harga Rupiah (opsional tapi membantu)
     public function getFormattedPriceAttribute()
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');
