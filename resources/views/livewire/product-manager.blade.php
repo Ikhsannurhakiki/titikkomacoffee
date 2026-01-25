@@ -4,9 +4,10 @@ use Livewire\Volt\Component;
 use App\Models\Product;
 use App\Models\Category;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 new class extends Component {
-    use WithFileUploads;
+    use WithFileUploads, WithPagination;
 
     public $search = '';
     public $showModal = false;
@@ -80,7 +81,7 @@ new class extends Component {
                 ->with('category')
                 ->where('name', 'like', "%{$this->search}%")
                 ->latest()
-                ->paginate(10),
+                ->paginate(5),
             'categories' => Category::all(),
         ];
     }
@@ -115,9 +116,9 @@ new class extends Component {
     </div>
 
     {{-- Table --}}
-    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-gray-50 text-gray-500 text-[11px] uppercase font-black tracking-wider">
+    <div class="bg-white rounded-2xl border border-primary overflow-hidden shadow-sm">
+        <table class="w-full text-left border-collapse ">
+            <thead class="bg-secondary text-primary text-[11px] uppercase font-black tracking-wider">
                 <tr>
                     <th class="p-4">Item Name</th>
                     <th class="p-4">Category</th>
@@ -126,13 +127,13 @@ new class extends Component {
                     <th class="p-4 text-center">Action</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-50">
+            <tbody class="divide-y divide-gray-50 ">
                 @foreach ($products as $product)
-                    <tr class="hover:bg-gray-50/50 transition">
+                    <tr class="hover:bg-gray-50/50 transition text-center">
                         <td class="p-4 flex items-center gap-3">
                             <img src="{{ $product->getFirstMediaUrl('thumbnail') ?: asset('images/logo.png') }}"
                                 class="w-10 h-10 rounded-lg object-cover bg-gray-100" alt="{{ $product->name }}">
-                            <span class="font-bold text-secondary text-sm">{{ $product->name }}</span>
+                            <span class="font-bold text-primary text-sm">{{ $product->name }}</span>
                         </td>
                         <td class="p-4 text-sm text-gray-600">{{ $product->category->name }}</td>
                         <td class="p-4 text-sm font-bold text-primary">
@@ -173,6 +174,11 @@ new class extends Component {
                 @endforeach
             </tbody>
         </table>
+        {{-- Pagination Links --}}
+        <div class="p-4 bg-secondary border-t border-gray-100 text-white">
+            {{ $products->links() }}
+        </div>
+
     </div>
 
     {{-- MODAL (Alpine.js integration) --}}
@@ -229,7 +235,8 @@ new class extends Component {
                             <label class="text-[10px] font-black text-gray-400 uppercase">Foto Produk</label>
                             <input type="file" wire:model="image" class="text-xs">
                             @if ($image)
-                                <img src="{{ $image->temporaryUrl() }}" class="mt-2 w-20 h-20 rounded-lg object-cover">
+                                <img src="{{ $image->temporaryUrl() }}"
+                                    class="mt-2 w-20 h-20 rounded-lg object-cover">
                             @elseif($existingImage)
                                 <img src="{{ asset('storage/' . $existingImage) }}"
                                     class="mt-2 w-20 h-20 rounded-lg object-cover">

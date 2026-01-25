@@ -2,28 +2,30 @@
 
 namespace App\Models;
 
+use App\Models\Attendance;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Staff extends Model
+class Staff extends Model implements HasMedia
 {
     use HasFactory;
+    use InteractsWithMedia;
 
-    // Nama tabel jika tidak jamak (optional, tapi baik untuk kejelasan)
     protected $table = 'staffs';
 
     protected $fillable = [
         'name',
         'pin',
         'position',
-        'is_active'
+        'is_active',
+        'phone',
+        'join_date',
     ];
 
-    /**
-     * Relasi: Satu staf memiliki banyak catatan absensi.
-     */
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
@@ -34,9 +36,7 @@ class Staff extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    /**
-     * Scope untuk mempermudah filter staf yang sedang aktif bekerja.
-     */
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

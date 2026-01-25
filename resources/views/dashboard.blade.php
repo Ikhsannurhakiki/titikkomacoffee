@@ -6,7 +6,7 @@
             </div>
         </div>
 
-        {{-- Aside kosong yang ukurannya persis sama dengan di Product --}}
         <aside class="w-96 bg-gray-50 border-l invisible lg:block shrink-0"></aside>
     </div>
 </x-app-layout>
+''
