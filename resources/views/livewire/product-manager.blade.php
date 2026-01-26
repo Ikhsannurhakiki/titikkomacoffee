@@ -181,17 +181,17 @@ new class extends Component {
 
     {{-- MODAL (Alpine.js integration) --}}
     @if ($showModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="fixed w-1/5 inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div
-                class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                    <h2 class="text-xl font-black text-secondary uppercase">{{ $productId ? 'Edit' : 'Tambah' }} Produk
+                class="bg-white rounded-3xl border-primary shadow-2xl w-1/2 max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div class="p-6 border-b bg-secondary border-secondary flex justify-between items-center">
+                    <h2 class="text-xl font-black text-white uppercase">{{ $productId ? 'Edit' : 'Tambah' }} Produk
                     </h2>
                     <button wire:click="$set('showModal', false)"
                         class="text-gray-400 hover:text-gray-600">&times;</button>
                 </div>
                 <form wire:submit="save" class="p-6 space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4">
                         <div class="col-span-2 space-y-1">
                             <label class="text-[10px] font-black text-gray-400 uppercase">Nama Produk</label>
                             <input type="text" wire:model="name"

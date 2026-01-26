@@ -10,15 +10,16 @@ Volt::route('/staff-active', 'staff-active')->name('staff-active');
 Volt::route('/product-form', 'product-form')->name('product-form');
 Volt::route('/product-manager', 'product-manager')->name('product-manager');
 Volt::route('/staff-manager', 'staff-manager')->name('staff-manager');
+Volt::route('/dashboard', 'dashboard')->name('dashboard');
 
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

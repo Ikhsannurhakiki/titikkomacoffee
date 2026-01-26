@@ -22,7 +22,7 @@
             <div class="absolute inset-0 bg-black/20"></div>
 
             <span
-                class="absolute top-2 right-2 bg-red-600 text-white text-[10px] px-2 py-1 rounded shadow-lg font-black uppercase tracking-wider">
+                class="absolute top-2 right-2 bg-gray-500 text-white text-[10px] px-2 py-1 rounded shadow-lg font-black uppercase tracking-wider">
                 Out of Stock
             </span>
 
