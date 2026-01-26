@@ -90,41 +90,38 @@ new class extends Component {
 }; ?>
 
 <div class="flex h-screen w-full overflow-hidden bg-gray-50/50">
-
-    <div class="flex-1 p-4 overflow-y-auto min-w-0">
-        {{-- Kategori Tabs & Search Bar --}}
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-            <div class="relative w-72">
-                <input type="text" wire:model.live="search" placeholder="Cari menu..."
-                    class="w-full pl-10 pr-4 py-2 rounded-xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-primary transition-all shadow-sm text-sm font-medium">
-                <svg class="w-4 h-4 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </div>
-            <button wire:click="setCategory(null)"
-                class="px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ !$selectedCategory ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-100' }}">
-                Semua
-            </button>
-            @foreach ($categories as $category)
-                <button wire:click="setCategory({{ $category->id }})"
-                    class="px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ $selectedCategory == $category->id ? 'bg-primary text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100' }}">
-                    {{ $category->name }}
+    <div class="flex-1 overflow-y-auto min-w-0">
+        {{-- Header --}}
+        <x-header title="Cashier">
+            <x-search-bar placeholder="Cari menu item" model="search" class="w-full md:w-96" />
+        </x-header>
+        <div class="max-w-7xl mx-auto px-6">
+            {{-- Kategori Tabs --}}
+            <div class="flex gap-2 mb-6 overflow-x-auto scrollbar-hide">
+                <button wire:click="setCategory(null)"
+                    class="px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ !$selectedCategory ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-100' }}">
+                    Semua
                 </button>
-            @endforeach
-        </div>
+                @foreach ($categories as $category)
+                    <button wire:click="setCategory({{ $category->id }})"
+                        class="px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ $selectedCategory == $category->id ? 'bg-primary text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100' }}">
+                        {{ $category->name }}
+                    </button>
+                @endforeach
+            </div>
 
-        {{-- Grid Produk --}}
-        <div class="grid grid-cols-1 sm:grid-cols- md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            @forelse($products as $product)
-                <div wire:click="addToCart({{ $product->id }})" wire:key="product-{{ $product->id }}"
-                    @disabled(!$product->is_available)>
-                    <x-product-item-card :product="$product" />
-                </div>
-            @empty
-                <div class="col-span-full py-16 text-center text-gray-400 text-sm italic">Menu tidak ditemukan...</div>
-            @endforelse
+            {{-- Grid Produk --}}
+            <div class="grid grid-cols-1 sm:grid-cols- md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                @forelse($products as $product)
+                    <div wire:click="addToCart({{ $product->id }})" wire:key="product-{{ $product->id }}"
+                        @disabled(!$product->is_available)>
+                        <x-product-item-card :product="$product" />
+                    </div>
+                @empty
+                    <div class="col-span-full py-16 text-center text-gray-400 text-sm italic">Menu tidak ditemukan...
+                    </div>
+                @endforelse
+            </div>
         </div>
     </div>
 
@@ -166,13 +163,13 @@ new class extends Component {
                             <h4 class="text-[11px] font-black text-secondary truncate uppercase">{{ $item['name'] }}
                             </h4>
                             <span
-                                class="text-[10px] font-bold text-primary">Rp{{ number_format($item['price'], 0, ',', '.') }}</span>
+                                class="text-2xs font-bold text-primary">Rp{{ number_format($item['price'], 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center bg-white border border-gray-200 rounded-lg ml-2">
                             <button wire:click="decrementQty({{ $id }})"
                                 class="p-1 px-2 hover:bg-gray-50 text-secondary">-</button>
                             <span
-                                class="px-2 text-[10px] font-black text-secondary border-x border-gray-100">{{ $item['qty'] }}</span>
+                                class="px-2 text-2xs font-black text-secondary border-x border-gray-100">{{ $item['qty'] }}</span>
                             <button wire:click="incrementQty({{ $id }})"
                                 class="p-1 px-2 hover:bg-gray-50 text-secondary">+</button>
                         </div>
@@ -189,8 +186,8 @@ new class extends Component {
         <div class="bg-gray-50 p-4 border-t border-gray-200">
             <div
                 class="bg-white border border-gray-200 rounded-xl p-2.5 flex justify-between items-center mb-4 shadow-sm">
-                <span class="text-[10px] uppercase font-black text-gray-400">Add Extras</span>
-                <div class="flex gap-3 text-[10px] font-bold text-secondary uppercase">
+                <span class="text-2xs uppercase font-black text-gray-400">Add Extras</span>
+                <div class="flex gap-3 text-2xs font-bold text-secondary uppercase">
                     <button class="hover:text-primary transition">Disc</button>
                     <button class="hover:text-primary transition">Coupon</button>
                     <button class="hover:text-primary transition">Note</button>
@@ -214,7 +211,7 @@ new class extends Component {
 
             <div class="grid grid-cols-2 gap-3">
                 <button
-                    class="flex flex-col items-center justify-center bg-secondary text-white py-3 rounded-xl font-bold hover:bg-secondary/90 active:scale-95 transition-all text-[10px] uppercase shadow-md">
+                    class="flex flex-col items-center justify-center bg-secondary text-white py-3 rounded-xl font-bold hover:bg-secondary/90 active:scale-95 transition-all text-2xs uppercase shadow-md">
                     <svg class="w-5 h-5 mb-1 opacity-80" fill="none" stroke="currentColor" stroke-width="2.5"
                         viewBox="0 0 24 24">
                         <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -223,7 +220,7 @@ new class extends Component {
                 </button>
 
                 <button
-                    class="flex flex-col items-center justify-center bg-primary text-white py-3 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase shadow-md shadow-primary/20">
+                    class="flex flex-col items-center justify-center bg-primary text-white py-3 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all text-2xs uppercase shadow-md shadow-primary/20">
                     <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2.5"
                         viewBox="0 0 24 24">
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

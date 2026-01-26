@@ -41,8 +41,8 @@
 
     <div class="bg-gray-50 p-4 border-t border-gray-200">
         <div class="bg-white border border-gray-200 rounded-xl p-2.5 flex justify-between items-center mb-4 shadow-sm">
-            <span class="text-[10px] uppercase font-black text-gray-400">Add Extras</span>
-            <div class="flex gap-3 text-[10px] font-bold text-secondary uppercase">
+            <span class="text-2xs uppercase font-black text-gray-400">Add Extras</span>
+            <div class="flex gap-3 text-2xs font-bold text-secondary uppercase">
                 <button class="hover:text-primary transition">Disc</button>
                 <button class="hover:text-primary transition">Coupon</button>
                 <button class="hover:text-primary transition">Note</button>
@@ -66,7 +66,7 @@
 
         <div class="grid grid-cols-2 gap-3">
             <button
-                class="flex flex-col items-center justify-center bg-secondary text-white py-3 rounded-xl font-bold hover:bg-secondary/90 active:scale-95 transition-all text-[10px] uppercase shadow-md shadow-secondary/10">
+                class="flex flex-col items-center justify-center bg-secondary text-white py-3 rounded-xl font-bold hover:bg-secondary/90 active:scale-95 transition-all text-2xs uppercase shadow-md shadow-secondary/10">
                 <svg class="w-5 h-5 mb-1 opacity-80" fill="none" stroke="currentColor" stroke-width="2.5"
                     viewBox="0 0 24 24">
                     <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -75,7 +75,7 @@
             </button>
 
             <button
-                class="flex flex-col items-center justify-center bg-primary text-white py-3 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase shadow-md shadow-primary/20">
+                class="flex flex-col items-center justify-center bg-primary text-white py-3 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all text-2xs uppercase shadow-md shadow-primary/20">
                 <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

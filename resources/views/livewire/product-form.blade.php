@@ -94,7 +94,7 @@ new class extends Component {
                     @this.removeUpload('thumbnail', uniqueFileId, load)
                 },
             },
-            labelIdle: '<span class=&quot;text-[10px] font-black uppercase text-gray-400&quot;>Tarik foto atau <span class=&quot;text-orange-500&quot;>Klik</span></span>',
+            labelIdle: '<span class=&quot;text-2xs font-black uppercase text-gray-400&quot;>Tarik foto atau <span class=&quot;text-orange-500&quot;>Klik</span></span>',
             imagePreviewHeight: 150,
             stylePanelLayout: 'compact',
         });
@@ -143,7 +143,7 @@ new class extends Component {
                 <div class="lg:col-span-7 space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div class="space-y-1.5">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nama
+                            <label class="text-2xs font-black text-gray-400 uppercase tracking-widest ml-1">Nama
                                 Produk</label>
                             <input type="text" wire:model.live="name"
                                 class="w-full bg-gray-50 border-none rounded-xl py-3 px-5 focus:ring-2 focus:ring-orange-500/20 font-bold text-gray-700 transition-all">
@@ -153,8 +153,7 @@ new class extends Component {
                         </div>
 
                         <div class="space-y-1.5">
-                            <label
-                                class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Slug</label>
+                            <label class="text-2xs font-black text-gray-400 uppercase tracking-widest ml-1">Slug</label>
                             <input type="text" wire:model="slug"
                                 class="w-full bg-gray-100 border-none rounded-xl py-3 px-5 font-bold text-gray-500"
                                 readonly>
@@ -164,7 +163,7 @@ new class extends Component {
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div class="space-y-1.5">
                             <label
-                                class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Kategori</label>
+                                class="text-2xs font-black text-gray-400 uppercase tracking-widest ml-1">Kategori</label>
                             <select wire:model="category_id"
                                 class="w-full bg-gray-50 border-none rounded-xl py-3 px-5 focus:ring-2 focus:ring-orange-500/20 font-bold text-gray-700 appearance-none">
                                 <option value="">Pilih Kategori</option>
@@ -175,7 +174,7 @@ new class extends Component {
                         </div>
 
                         <div class="space-y-1.5">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Harga
+                            <label class="text-2xs font-black text-gray-400 uppercase tracking-widest ml-1">Harga
                                 (Rp)</label>
                             <input type="number" wire:model="price"
                                 class="w-full bg-gray-50 border-none rounded-xl py-3 px-5 focus:ring-2 focus:ring-orange-500/20 font-bold text-gray-700 transition-all">
@@ -184,7 +183,7 @@ new class extends Component {
 
                     <div class="space-y-1.5">
                         <label
-                            class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Deskripsi</label>
+                            class="text-2xs font-black text-gray-400 uppercase tracking-widest ml-1">Deskripsi</label>
                         <textarea wire:model="description" rows="5"
                             class="w-full bg-gray-50 border-none rounded-xl py-3 px-5 focus:ring-2 focus:ring-orange-500/20 font-bold text-gray-700 resize-none transition-all"></textarea>
                     </div>
@@ -192,8 +191,7 @@ new class extends Component {
 
                 {{-- Image Upload --}}
                 <div class="lg:col-span-5 space-y-4">
-                    <label
-                        class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center block">Media
+                    <label class="text-2xs font-black text-gray-400 uppercase tracking-widest text-center block">Media
                         Visual</label>
 
                     @if ($isEdit && !$thumbnail && $existingThumbnail)
@@ -215,7 +213,7 @@ new class extends Component {
         {{-- FIXED FOOTER --}}
         <div class="p-6 border-t border-gray-50 flex items-center justify-between shrink-0 bg-white">
             <button type="button" onclick="history.back()"
-                class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] hover:text-gray-600 transition-colors">Batal</button>
+                class="text-2xs font-black text-gray-300 uppercase tracking-[0.2em] hover:text-gray-600 transition-colors">Batal</button>
             <button type="submit" form="productForm" wire:loading.attr="disabled" style="background-color: #b58d69;"
                 class="px-12 py-4 text-white text-[11px] font-black rounded-2xl shadow-xl active:scale-95 transition-all">
                 <span wire:loading.remove>{{ $isEdit ? 'PERBARUI MENU' : 'SIMPAN MENU' }}</span>

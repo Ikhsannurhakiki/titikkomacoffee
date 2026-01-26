@@ -71,7 +71,7 @@ new class extends Component {
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h2 class="text-lg font-black text-amber-800">Menunggu Persetujuan</h2>
-                        <p class="text-[10px] text-amber-500 font-bold uppercase tracking-widest">Verifikasi kehadiran
+                        <p class="text-2xs text-amber-500 font-bold uppercase tracking-widest">Verifikasi kehadiran
                             staf sekarang</p>
                     </div>
                     <span
@@ -91,11 +91,11 @@ new class extends Component {
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-bold text-gray-800">{{ $attendance->staff->name }}</h4>
-                                    <p class="text-[10px] text-amber-600 font-medium italic">Menunggu verifikasi...</p>
+                                    <p class="text-2xs text-amber-600 font-medium italic">Menunggu verifikasi...</p>
                                 </div>
                             </div>
                             <button wire:click="askForPin({{ $attendance->id }})" style="background-color: #b58d69;"
-                                class="text-white text-[10px] font-black px-5 py-2.5 rounded-xl shadow-md shadow-orange-200 active:scale-95 transition-all">
+                                class="text-white text-2xs font-black px-5 py-2.5 rounded-xl shadow-md shadow-orange-200 active:scale-95 transition-all">
                                 APPROVE
                             </button>
                         </div>
@@ -135,7 +135,7 @@ new class extends Component {
                                 <div class="flex items-center gap-2 mt-0.5">
                                     <span
                                         class="text-[9px] px-1.5 py-0.5 rounded bg-gray-200 text-gray-500 font-black uppercase">{{ $attendance->staff->position }}</span>
-                                    <span class="text-[10px] text-gray-400">In:
+                                    <span class="text-2xs text-gray-400">In:
                                         {{ $attendance->clock_in->format('H:i') }}</span>
                                 </div>
                             </div>
@@ -190,7 +190,7 @@ new class extends Component {
                 </div>
 
                 @if ($errorMessage)
-                    <div class="bg-red-50 text-red-500 text-[10px] font-bold py-2 px-4 rounded-lg mb-6">
+                    <div class="bg-red-50 text-red-500 text-2xs font-bold py-2 px-4 rounded-lg mb-6">
                         {{ $errorMessage }}
                     </div>
                 @endif

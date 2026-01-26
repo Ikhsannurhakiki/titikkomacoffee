@@ -68,50 +68,34 @@ new class extends Component {
     }
 }; ?>
 
-<div class="p-6 bg-white min-h-screen">
+<div class=" bg-white min-h-screen">
     {{-- Header --}}
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-2xl font-black text-primary uppercase tracking-tight">Manajemen Staff</h1>
-        </div>
+    <x-header title="Staff Manager">
+        <x-search-bar placeholder="Search staff, position or contact..." model="search" class="w-full md:w-96" />
         <button wire:click="openModal()"
-            class="bg-secondary text-primary px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:brightness-110 transition shadow-lg shadow-primary/20">
+            class="bg-secondary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:brightness-110 transition shadow-lg shadow-primary/20">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Add Staff
         </button>
-    </div>
-
-    {{-- Search --}}
-    <div class="mb-6">
-        <div class="relative max-w-md">
-            <input type="text" wire:model.live="search" placeholder="Search name, position or contact..."
-                class="w-full pl-10 pr-4 py-2.5 rounded-xl border-none ring-1 ring-primary focus:ring-2 focus:ring-primary shadow-sm text-sm">
-            <svg class="w-5 h-5 absolute left-3 top-3 text-secondary" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-        </div>
-    </div>
+    </x-header>
 
     {{-- Table --}}
-    <div class="bg-white rounded-2xl border border-secondary overflow-hidden shadow-sm">
+    <div class="bg-white px-6 border-secondary overflow-hidden shadow-sm">
         <x-table :headers="['Name', 'Position', 'Contact', 'Join Date', 'Action']">
             @forelse($staffs as $staff)
                 <tr class="hover:bg-gray-50/50 transition" wire:key="staff-{{ $staff->id }}">
                     <td class="p-4 ">
-                        <div class="font-bold text-primary">{{ $staff->name }}</div>
+                        <div class="font-bold text-primary text-sm">{{ $staff->name }}</div>
                     </td>
                     <td class="p-4">
                         <span class="px-3 py-1 bg-secondary/10 text-primary rounded-full text-2xs font-black uppercase">
                             {{ $staff->position }}
                         </span>
                     </td>
-                    <td class="p-4 text-gray-600 font-medium">{{ $staff->phone }}</td>
-                    <td class="p-4 text-gray-500">{{ \Carbon\Carbon::parse($staff->join_date)->format('d M Y') }}
+                    <td class="font-bold text-primary text-sm">{{ $staff->phone }}</td>
+                    <td class="font-bold text-primary text-sm">
+                        {{ \Carbon\Carbon::parse($staff->join_date)->format('d M Y') }}
                     </td>
                     <td class="p-4">
                         <div class="flex justify-center gap-2">

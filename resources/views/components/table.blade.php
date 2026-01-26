@@ -2,14 +2,14 @@
 
 <div class="bg-white rounded-2xl border border-primary overflow-hidden shadow-sm">
     <table class="w-full text-left border-collapse">
-        <thead class="bg-secondary text-white text-[11px] uppercase font-black tracking-wider">
+        <thead class="bg-secondary text-white text-[11px] uppercase font-black tracking-wider text-center">
             <tr>
                 @foreach ($headers as $header)
                     <th class="p-4">{{ $header }}</th>
                 @endforeach
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody class="divide-y divide-gray-50 text-center">
             {{ $slot }}
         </tbody>
     </table>

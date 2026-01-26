@@ -4,9 +4,6 @@ use App\Models\Order;
 use App\Models\Product;
 use Carbon\Carbon;
 use function Livewire\Volt\{state, with};
-
-// Menggunakan with() adalah cara terbaik untuk data Dashboard
-// agar otomatis ter-refresh saat wire:poll jalan.
 with(
     fn() => [
         'totalSalesToday' => Order::whereDate('created_at', Carbon::today())->sum('total_price'),
@@ -16,26 +13,15 @@ with(
         'lowStockProducts' => Product::where('is_available', 0)->take(5)->get(),
     ],
 );
-
 ?>
 
-<div wire:poll.30s class="p-6 bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Dashboard POS</h1>
-                <p class="text-sm text-gray-500">Pantau performa tokomu hari ini, {{ now()->format('d M Y') }}</p>
-            </div>
-            {{-- Tombol Refresh Manual (Opsional) --}}
-            <button wire:click="$refresh" class="p-2 bg-white border rounded-lg hover:bg-gray-50 transition shadow-sm">
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                    </path>
-                </svg>
-            </button>
-        </div>
+<div wire:poll.30s class="h-screen overflow-y-auto bg-gray-50 min-h-screen">
+    {{-- Header --}}
+    <x-header title="Dashboard" subtitle="Dashboard POS" />
 
+    {{-- Main Content --}}
+    <div class="max-w-7xl mx-auto">
+        {{-- Stats Cards --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center">
                 <div class="p-3 bg-green-100 rounded-full mr-4">
@@ -90,12 +76,12 @@ with(
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-50 flex justify-between items-center">
                     <h3 class="font-bold text-gray-800 uppercase text-xs tracking-wider">Aktivitas Terakhir</h3>
-                    <a href="#" class="text-primary text-[10px] font-bold hover:underline">LIHAT SEMUA</a>
+                    <a href="#" class="text-primary text-2xs font-bold hover:underline">LIHAT SEMUA</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-50/50">
-                            <tr class="text-gray-400 uppercase text-[10px] tracking-widest">
+                            <tr class="text-gray-400 uppercase text-2xs tracking-widest">
                                 <th class="px-6 py-3 font-semibold text-center">Inv</th>
                                 <th class="px-6 py-3 font-semibold">Total</th>
                                 <th class="px-6 py-3 font-semibold text-right">Status</th>
@@ -109,7 +95,7 @@ with(
                                         {{ number_format($order->total_price, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4 text-right">
                                         <span
-                                            class="px-2 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-black shadow-sm">PAID</span>
+                                            class="px-2 py-1 bg-green-50 text-green-600 rounded-lg text-2xs font-black shadow-sm">PAID</span>
                                     </td>
                                 </tr>
                             @empty
@@ -140,7 +126,7 @@ with(
                                 </div>
                                 <div class="ml-4">
                                     <p class="text-sm font-bold text-gray-700">{{ $product->name }}</p>
-                                    <p class="text-[10px] text-gray-400 uppercase tracking-tighter">
+                                    <p class="text-2xs text-gray-400 uppercase tracking-tighter">
                                         {{ $product->category->name ?? 'Uncategorized' }}</p>
                                 </div>
                             </div>

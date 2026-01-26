@@ -89,38 +89,20 @@ new class extends Component {
     }
 }; ?>
 
-<div class="p-6 bg-white min-h-screen">
+<div class=" bg-white min-h-screen h-full">
     {{-- Header --}}
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-2xl font-black text-secondary uppercase">Menu Item List</h1>
-        </div>
+    <x-header title="Menu Item List">
+        <x-search-bar placeholder="Cari menu item" model="search" class="w-full md:w-96" />
         <button wire:click="openModal()"
-            class="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:brightness-110 transition shadow-lg shadow-primary/20">
+            class="bg-secondary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:brightness-110 transition shadow-lg shadow-primary/20">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Add Menu Item
         </button>
-    </div>
-
-    {{-- Search Bar --}}
-    <div class="mb-6">
-        <div class="relative max-w-md">
-            <input type="text" wire:model.live="search" placeholder="Cari nama produk..."
-                class="w-full pl-10 pr-4 py-2.5 rounded-xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-primary shadow-sm">
-            <svg class="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-        </div>
-    </div>
+    </x-header>
 
     {{-- Table --}}
-    <div class="bg-white rounded-2xl border border-primary overflow-hidden shadow-sm">
-
-
+    <div class=" bg-white px-6 overflow-hidden">
         <x-table :headers="['Item Name', 'Category', 'Price', 'Availablity', 'Action']">
             @forelse($products as $product)
                 <tr class="hover:bg-gray-50/50 transition text-center">
@@ -129,13 +111,13 @@ new class extends Component {
                             class="w-10 h-10 rounded-lg object-cover bg-gray-100" alt="{{ $product->name }}">
                         <span class="font-bold text-primary text-sm">{{ $product->name }}</span>
                     </td>
-                    <td class="p-4 text-sm text-gray-600">{{ $product->category->name }}</td>
-                    <td class="p-4 text-sm font-bold text-primary">
+                    <td class="font-bold text-primary text-sm">{{ $product->category->name }}</td>
+                    <td class="font-bold text-primary text-sm">
                         Rp{{ number_format($product->price, 0, ',', '.') }}</td>
                     <td class="p-4">
                         {{-- Label Status --}}
                         <span
-                            class="text-[10px] font-black uppercase {{ $product->is_available ? 'text-green-500' : 'text-gray-400' }}">
+                            class="text-2xs font-black uppercase {{ $product->is_available ? 'text-green-500' : 'text-gray-400' }}">
                             {{ $product->is_available ? 'Available' : 'Out of Stock' }}
                         </span>
 
@@ -193,15 +175,15 @@ new class extends Component {
                 <form wire:submit="save" class="p-6 space-y-4">
                     <div class="grid grid-cols-1 gap-4">
                         <div class="col-span-2 space-y-1">
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Nama Produk</label>
+                            <label class="text-2xs font-black text-gray-400 uppercase">Nama Produk</label>
                             <input type="text" wire:model="name"
                                 class="w-full px-4 py-2 rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm">
                             @error('name')
-                                <span class="text-red-500 text-[10px]">{{ $message }}</span>
+                                <span class="text-red-500 text-2xs">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Kategori</label>
+                            <label class="text-2xs font-black text-gray-400 uppercase">Kategori</label>
                             <select wire:model="category_id"
                                 class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm">
                                 <option value="">Pilih</option>
@@ -211,14 +193,14 @@ new class extends Component {
                             </select>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Harga</label>
+                            <label class="text-2xs font-black text-gray-400 uppercase">Harga</label>
                             <input type="number" wire:model="price"
                                 class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm">
                         </div>
                         <div class="space-y-1">
                             {{-- Label Status --}}
                             <span
-                                class="text-[10px] font-black uppercase {{ $product->is_available ? 'text-green-500' : 'text-gray-400' }}">
+                                class="text-2xs font-black uppercase {{ $product->is_available ? 'text-green-500' : 'text-gray-400' }}">
                                 {{ $product->is_available ? 'Tersedia' : 'Habis' }}
                             </span>
 
@@ -230,7 +212,7 @@ new class extends Component {
                             </button>
                         </div>
                         <div class="col-span-2 space-y-1">
-                            <label class="text-[10px] font-black text-gray-400 uppercase">Foto Produk</label>
+                            <label class="text-2xs font-black text-gray-400 uppercase">Foto Produk</label>
                             <input type="file" wire:model="image" class="text-xs">
                             @if ($image)
                                 <img src="{{ $image->temporaryUrl() }}" class="mt-2 w-20 h-20 rounded-lg object-cover">
