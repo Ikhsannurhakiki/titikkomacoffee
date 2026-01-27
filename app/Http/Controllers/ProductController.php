@@ -14,10 +14,10 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'is_active' => 'boolean',
+            'is_available' => 'boolean',
         ]);
 
-        $product = Product::create($request->only('name', 'price', 'description', 'category_id', 'is_active'));
+        $product = Product::create($request->only('name', 'price', 'description', 'category_id', 'is_available'));
 
         if ($request->hasFile('thumbnail')) {
             $product->addMediaFromRequest('thumbnail')->toMediaCollection('thumbnail');

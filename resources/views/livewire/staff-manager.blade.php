@@ -3,14 +3,16 @@
 use Livewire\Volt\Component;
 use App\Models\Staff;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 
 new class extends Component {
     use WithPagination;
+    use WithFileUploads;
 
     public $search = '';
     public $showModal = false;
 
-    public $staffId, $name, $position, $phone, $email, $join_date;
+    public $staffId, $name, $position, $phone, $pin, $join_date, $image, $existingImage;
 
     public function rules()
     {
@@ -18,15 +20,16 @@ new class extends Component {
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
-            'email' => 'required|email|unique:staffs,email,' . $this->staffId,
+            'pin' => 'required|string|max:6',
             'join_date' => 'required|date',
+            'image' => $this->staffId ? 'nullable|image|max:1024' : 'required|image|max:1024',
         ];
     }
 
     public function openModal($id = null)
     {
         $this->resetValidation();
-        $this->reset(['name', 'position', 'phone', 'email', 'join_date', 'staffId']);
+        $this->reset(['name', 'position', 'phone', 'pin', 'join_date', 'staffId', 'image', 'existingImage']);
 
         if ($id) {
             $staff = Staff::find($id);
@@ -34,20 +37,48 @@ new class extends Component {
             $this->name = $staff->name;
             $this->position = $staff->position;
             $this->phone = $staff->phone;
-            $this->email = $staff->email;
+            $this->pin = $staff->pin;
             $this->join_date = $staff->join_date;
+            $this->existingImage = $staff->image;
         }
         $this->showModal = true;
     }
 
     public function save()
     {
-        $data = $this->validate();
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:100',
+            'phone' => 'required|string|max:20',
+            'pin' => 'required|string|max:6',
+            'join_date' => 'required|date',
+            'image' => 'nullable|image|max:1024',
+        ]);
 
-        Staff::updateOrCreate(['id' => $this->staffId], $data);
+        $data = [
+            'name' => $this->name,
+            'position' => $this->position,
+            'phone' => $this->phone,
+            'pin' => $this->pin,
+            'join_date' => $this->join_date,
+        ];
 
+        if ($this->image) {
+            $data['image'] = $this->image->store('staffs', 'public');
+        } else {
+            $data['image'] = $this->existingImage;
+        }
+
+        $staff = Staff::updateOrCreate(['id' => $this->staffId], $data);
+        if ($this->image) {
+            $staff
+                ->addMedia($this->image->getRealPath())
+                ->usingFileName($this->image->getClientOriginalName())
+                ->toMediaCollection('staff-profile');
+        }
         $this->showModal = false;
         $this->dispatch('notify', $this->staffId ? 'Data staff diperbarui!' : 'Staff baru ditambahkan!');
+        return redirect()->route('staff-manager');
     }
 
     public function delete($id)
@@ -82,11 +113,13 @@ new class extends Component {
 
     {{-- Table --}}
     <div class="bg-white px-6 border-secondary overflow-hidden shadow-sm">
-        <x-table :headers="['Name', 'Position', 'Contact', 'Join Date', 'Action']">
+        <x-table :headers="['Name', 'Position', 'Contact', 'Join Date', 'Status', 'Action']">
             @forelse($staffs as $staff)
-                <tr class="hover:bg-gray-50/50 transition" wire:key="staff-{{ $staff->id }}">
-                    <td class="p-4 ">
-                        <div class="font-bold text-primary text-sm">{{ $staff->name }}</div>
+                <tr class="hover:bg-gray-50/50 transition text-center">
+                    <td class="p-4 flex items-center gap-3 ">
+                        <img src="{{ $staff->getFirstMediaUrl('staff-profile') ?: asset('images/logo.png') }}"
+                            class="w-10 h-10 rounded-lg object-cover bg-gray-100" alt="{{ $staff->name }}">
+                        <span class="font-bold text-primary text-sm">{{ $staff->name }}</span>
                     </td>
                     <td class="p-4">
                         <span class="px-3 py-1 bg-secondary/10 text-primary rounded-full text-2xs font-black uppercase">
@@ -97,6 +130,19 @@ new class extends Component {
                     <td class="font-bold text-primary text-sm">
                         {{ \Carbon\Carbon::parse($staff->join_date)->format('d M Y') }}
                     </td>
+                    <td class="p-4">
+                        {{-- Label Status --}}
+                        <span
+                            class="text-2xs font-black uppercase {{ $staff->is_active ? 'text-green-500' : 'text-gray-400' }}">
+                            {{ $staff->is_active ? 'Active' : 'Inactive' }}
+                        </span>
+
+                        {{-- Toggle Switch --}}
+                        <button wire:click="toggleStatus({{ $staff->id }})"
+                            class="relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $staff->is_active ? 'bg-primary' : 'bg-gray-200' }}">
+                            <span
+                                class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $staff->is_active ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                        </button>
                     <td class="p-4">
                         <div class="flex justify-center gap-2">
                             <button wire:click="openModal({{ $staff->id }})"
@@ -132,17 +178,9 @@ new class extends Component {
 
     {{-- MODAL --}}
     @if ($showModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-secondary/20 backdrop-blur-sm">
-            <div
-                class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                    <h2 class="text-xl font-black text-secondary uppercase">{{ $staffId ? 'Edit' : 'Tambah' }} Staff
-                    </h2>
-                    <button wire:click="$set('showModal', false)"
-                        class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-                </div>
-
-                <form wire:submit="save" class="p-6 space-y-4">
+        <x-form-modal :productId="$staffId" :name="$name" title="{{ $staffId ? 'Edit' : 'Tambah' }} Staff">
+            <form wire:submit="save" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
                         <label class="text-2xs font-black text-gray-400 uppercase">Nama Lengkap</label>
                         <input type="text" wire:model="name"
@@ -151,53 +189,93 @@ new class extends Component {
                             <span class="text-red-500 text-2xs font-bold">{{ $message }}</span>
                         @enderror
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-2xs font-black text-gray-400 uppercase">Posisi / Jabatan</label>
-                            <select wire:model="position"
-                                class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
-                                <option value="">Pilih Posisi</option>
-                                <option value="Manager">Manager</option>
-                                <option value="Kasir">Kasir</option>
-                                <option value="Chef">Chef</option>
-                                <option value="Waiter">Waiter</option>
-                            </select>
-                            @error('position')
-                                <span class="text-red-500 text-2xs font-bold">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-2xs font-black text-gray-400 uppercase">No. Telepon</label>
-                            <input type="text" wire:model="phone"
-                                class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
-                        </div>
-                    </div>
-
                     <div class="space-y-1">
-                        <label class="text-2xs font-black text-gray-400 uppercase">Email</label>
-                        <input type="email" wire:model="email"
-                            class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
-                        @error('email')
+                        <label class="text-2xs font-black text-gray-400 uppercase tracking-widest">PIN Keamanan</label>
+                        <input type="password" wire:model="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+                            placeholder="••••••"
+                            class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm focus:ring-secondary focus:border-secondary tracking-[1em] font-bold text-center">
+
+                        @error('pin')
                             <span class="text-red-500 text-2xs font-bold">{{ $message }}</span>
                         @enderror
                     </div>
+                </div>
 
+                <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                        <label class="text-2xsfont-black text-gray-400 uppercase">Tanggal Bergabung</label>
-                        <input type="date" wire:model="join_date"
+                        <label class="text-2xs font-black text-gray-400 uppercase">Posisi / Jabatan</label>
+                        <select wire:model="position"
+                            class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
+                            <option value="">Pilih Posisi</option>
+                            <option value="Manager">Manager</option>
+                            <option value="cashier">Cashier</option>
+                            <option value="kitchen">Kitchen</option>
+                            <option value="waiter">Waiter</option>
+                        </select>
+                        @error('position')
+                            <span class="text-red-500 text-2xs font-bold">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-2xs font-black text-gray-400 uppercase">No. Telepon</label>
+                        <input type="text" wire:model="phone"
                             class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
                     </div>
+                </div>
 
-                    <div class="pt-4 flex gap-3">
-                        <button type="button" wire:click="$set('showModal', false)"
-                            class="flex-1 py-3 text-xs font-black uppercase text-gray-400 bg-gray-100 rounded-xl hover:bg-gray-200 transition">Batal</button>
-                        <button type="submit"
-                            class="flex-1 py-3 text-xs font-black uppercase text-white bg-primary rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 transition">Simpan
-                            Data</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div class="space-y-1">
+                    <label class="text-2xsfont-black text-gray-400 uppercase">Tanggal Bergabung</label>
+                    <input type="date" wire:model="join_date"
+                        class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
+                </div>
+
+                <div class="space-y-1" wire:ignore x-data="{
+                    pond: null,
+                    initFilePond() {
+                        this.pond = FilePond.create($refs.input, {
+                            acceptedFileTypes: ['image/*'],
+                            maxFileSize: '1MB',
+                            server: {
+                                process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                    @this.upload('image', file, load, error, progress)
+                                },
+                                revert: (filename, load) => {
+                                    @this.removeUpload('image', filename, load)
+                                },
+                            },
+                            allowImagePreview: true,
+                            imagePreviewHeight: 120,
+                            labelIdle: 'Drop image or <span class=\'text-secondary font-bold\'>Browse</span>',
+                            credits: false,
+                        });
+                    }
+                }" x-init="initFilePond()">
+                    <label class="text-2xs font-black text-gray-400 uppercase">Foto Profile</label>
+                    <input type="file" x-ref="input">
+                    @error('image')
+                        <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                    @enderror
+
+                    {{-- Info Gambar Lama --}}
+                    @if (!$image && $existingImage)
+                        <div
+                            class="mt-2 flex items-center gap-3 p-2 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                            <img src="{{ asset('storage/' . $existingImage) }}"
+                                class="w-10 h-10 rounded-lg object-cover">
+                            <span class="text-[10px] text-gray-400 uppercase font-bold text-center">Gambar
+                                Aktif</span>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <button type="button" wire:click="$set('showModal', false)"
+                        class="flex-1 py-3 text-xs font-black uppercase text-gray-400 bg-gray-100 rounded-xl hover:bg-gray-200 transition">Batal</button>
+                    <button type="submit"
+                        class="flex-1 py-3 text-xs font-black uppercase text-white bg-primary rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 transition">Simpan
+                        Data</button>
+                </div>
+            </form>
+        </x-form-modal>
     @endif
 </div>

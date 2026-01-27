@@ -5,6 +5,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Illuminate\Support\Str;
 
 new class extends Component {
     use WithFileUploads, WithPagination;
@@ -14,7 +15,7 @@ new class extends Component {
     public $search = '';
     public $showModal = false;
 
-    public $productId, $name, $category_id, $price, $stock, $image;
+    public $productId, $name, $category_id, $price, $stock, $image, $description, $slug;
     public $existingImage;
 
     public function rules()
@@ -24,6 +25,7 @@ new class extends Component {
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'description' => 'nullable|string',
             'image' => $this->productId ? 'nullable|image|max:1024' : 'required|image|max:1024',
         ];
     }
@@ -31,7 +33,8 @@ new class extends Component {
     public function openModal($id = null)
     {
         $this->resetValidation();
-        $this->reset(['name', 'category_id', 'price', 'stock', 'image', 'productId', 'existingImage']);
+
+        $this->reset(['name', 'category_id', 'price', 'stock', 'image', 'productId', 'existingImage', 'description']);
 
         if ($id) {
             $product = Product::find($id);
@@ -40,24 +43,44 @@ new class extends Component {
             $this->category_id = $product->category_id;
             $this->price = $product->price;
             $this->stock = $product->stock;
+            $this->description = $product->description;
             $this->existingImage = $product->image;
         }
         $this->showModal = true;
     }
 
-    public function toggleAvailability($id)
+    public function updatedName($value)
     {
-        $product = Product::find($id);
-        $product->update([
-            'is_available' => !$product->is_available,
-        ]);
+        $this->slug = Str::slug($value);
+    }
 
-        $this->dispatch('notify', 'Status menu diperbarui!');
+    public function updatedImage()
+    {
+        $this->validateOnly('image', [
+            'image' => 'image|max:1024',
+        ]);
     }
 
     public function save()
     {
-        $data = $this->validate();
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'description' => 'nullable|string',
+            'image' => $this->productId ? 'nullable|image|max:1024' : 'required|image|max:1024',
+        ]);
+
+        $data = [
+            'name' => $this->name,
+            'category_id' => $this->category_id,
+            'slug' => \Illuminate\Support\Str::slug($this->name),
+            'description' => $this->description,
+            'price' => $this->price,
+            'stock' => $this->stock,
+            'is_available' => $this->productId ? Product::find($this->productId)->is_available : 1,
+        ];
 
         if ($this->image) {
             $data['image'] = $this->image->store('products', 'public');
@@ -68,12 +91,23 @@ new class extends Component {
         Product::updateOrCreate(['id' => $this->productId], $data);
 
         $this->showModal = false;
+
         $this->dispatch('notify', $this->productId ? 'Produk diperbarui!' : 'Produk ditambahkan!');
+
+        return redirect()->route('product-manager');
+    }
+
+    public function toggleAvailability($id)
+    {
+        $product = Product::find($id);
+        $product->update(['is_available' => !$product->is_available]);
+        $this->dispatch('notify', 'Status menu diperbarui!');
     }
 
     public function delete($id)
     {
         Product::find($id)->delete();
+        $this->dispatch('notify', 'Produk dihapus!');
     }
 
     public function with()
@@ -161,76 +195,127 @@ new class extends Component {
 
     </div>
 
-    {{-- MODAL (Alpine.js integration) --}}
+    {{-- MODAL --}}
     @if ($showModal)
-        <div class="fixed w-1/5 inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div
-                class="bg-white rounded-3xl border-primary shadow-2xl w-1/2 max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div class="p-6 border-b bg-secondary border-secondary flex justify-between items-center">
-                    <h2 class="text-xl font-black text-white uppercase">{{ $productId ? 'Edit' : 'Tambah' }} Produk
-                    </h2>
-                    <button wire:click="$set('showModal', false)"
-                        class="text-gray-400 hover:text-gray-600">&times;</button>
-                </div>
-                <form wire:submit="save" class="p-6 space-y-4">
-                    <div class="grid grid-cols-1 gap-4">
+        <x-form-modal name="product-modal" :title="$productId ? 'Edit Product' : 'Add New Product'">
+            <form wire:submit.prevent="save" class="p-6 space-y-4">
+                <div class="grid grid-cols-1 gap-4">
+
+                    {{-- Row 1: Nama Produk & Stock --}}
+                    <div class="grid grid-cols-3 gap-4">
                         <div class="col-span-2 space-y-1">
                             <label class="text-2xs font-black text-gray-400 uppercase">Nama Produk</label>
-                            <input type="text" wire:model="name"
-                                class="w-full px-4 py-2 rounded-xl border-gray-200 focus:ring-primary focus:border-primary text-sm">
+                            <input type="text" wire:model.live="name" placeholder="Contoh: Es Kopi Susu"
+                                class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary">
                             @error('name')
-                                <span class="text-red-500 text-2xs">{{ $message }}</span>
+                                <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="space-y-1">
+                            <label
+                                class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Slug</label>
+                            <input type="text" wire:model="slug"
+                                class="w-full bg-gray-100 border-none rounded-xl py-3 px-5 font-bold text-gray-500"
+                                readonly>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-2xs font-black text-gray-400 uppercase">Stok</label>
+                            <input type="number" wire:model="stock"
+                                class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary">
+                            @error('stock')
+                                <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Row 2: Kategori & Harga --}}
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
                             <label class="text-2xs font-black text-gray-400 uppercase">Kategori</label>
                             <select wire:model="category_id"
-                                class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm">
-                                <option value="">Pilih</option>
+                                class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary">
+                                <option value="">Pilih Kategori</option>
                                 @foreach ($categories as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
+                            @error('category_id')
+                                <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                            @enderror
                         </div>
                         <div class="space-y-1">
-                            <label class="text-2xs font-black text-gray-400 uppercase">Harga</label>
-                            <input type="number" wire:model="price"
-                                class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm">
+                            <label class="text-2xs font-black text-gray-400 uppercase">Harga (Rp)</label>
+                            <input type="number" wire:model="price" placeholder="0"
+                                class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary">
+                            @error('price')
+                                <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                            @enderror
                         </div>
-                        <div class="space-y-1">
-                            {{-- Label Status --}}
-                            <span
-                                class="text-2xs font-black uppercase {{ $product->is_available ? 'text-green-500' : 'text-gray-400' }}">
-                                {{ $product->is_available ? 'Tersedia' : 'Habis' }}
-                            </span>
+                    </div>
 
-                            {{-- Toggle Switch --}}
-                            <button wire:click="toggleAvailability({{ $product->id }})"
-                                class="relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $product->is_available ? 'bg-primary' : 'bg-gray-200' }}">
-                                <span
-                                    class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $product->is_available ? 'translate-x-5' : 'translate-x-0' }}"></span>
-                            </button>
-                        </div>
-                        <div class="col-span-2 space-y-1">
-                            <label class="text-2xs font-black text-gray-400 uppercase">Foto Produk</label>
-                            <input type="file" wire:model="image" class="text-xs">
-                            @if ($image)
-                                <img src="{{ $image->temporaryUrl() }}" class="mt-2 w-20 h-20 rounded-lg object-cover">
-                            @elseif($existingImage)
+                    {{-- Row 3: Deskripsi --}}
+                    <div class="space-y-1">
+                        <label class="text-2xs font-black text-gray-400 uppercase">Deskripsi Produk</label>
+                        <textarea wire:model="description" rows="2" placeholder="Jelaskan detail produk di sini..."
+                            class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary"></textarea>
+                        @error('description')
+                            <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    {{-- Row 4: FilePond Upload --}}
+                    <div class="space-y-1" wire:ignore x-data="{
+                        pond: null,
+                        initFilePond() {
+                            this.pond = FilePond.create($refs.input, {
+                                acceptedFileTypes: ['image/*'],
+                                maxFileSize: '1MB',
+                                server: {
+                                    process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                                        @this.upload('image', file, load, error, progress)
+                                    },
+                                    revert: (filename, load) => {
+                                        @this.removeUpload('image', filename, load)
+                                    },
+                                },
+                                allowImagePreview: true,
+                                imagePreviewHeight: 120,
+                                labelIdle: 'Drop image or <span class=\'text-secondary font-bold\'>Browse</span>',
+                                credits: false,
+                            });
+                        }
+                    }" x-init="initFilePond()">
+                        <label class="text-2xs font-black text-gray-400 uppercase">Foto Produk</label>
+                        <input type="file" x-ref="input">
+                        @error('image')
+                            <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                        @enderror
+
+                        {{-- Info Gambar Lama --}}
+                        @if (!$image && $existingImage)
+                            <div
+                                class="mt-2 flex items-center gap-3 p-2 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
                                 <img src="{{ asset('storage/' . $existingImage) }}"
-                                    class="mt-2 w-20 h-20 rounded-lg object-cover">
-                            @endif
-                        </div>
+                                    class="w-10 h-10 rounded-lg object-cover">
+                                <span class="text-[10px] text-gray-400 uppercase font-bold text-center">Gambar
+                                    Aktif</span>
+                            </div>
+                        @endif
                     </div>
-                    <div class="pt-4 flex gap-3">
-                        <button type="button" wire:click="$set('showModal', false)"
-                            class="flex-1 py-3 text-sm font-bold text-gray-500 bg-gray-100 rounded-xl">Batal</button>
-                        <button type="submit"
-                            class="flex-1 py-3 text-sm font-bold text-white bg-primary rounded-xl shadow-lg shadow-primary/20">Simpan
-                            Produk</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="pt-4 flex gap-3">
+                    <button type="button" wire:click="$set('showModal', false)"
+                        class="flex-1 py-3 text-sm font-bold text-gray-500 bg-gray-100 rounded-2xl hover:bg-gray-200 transition">Batal</button>
+
+                    <button type="submit" wire:loading.attr="disabled"
+                        class="flex-1 py-3 text-sm font-bold text-white bg-secondary rounded-2xl shadow-lg shadow-secondary/20 hover:brightness-110 transition disabled:opacity-50">
+                        <span wire:loading.remove>{{ $productId ? 'Simpan Perubahan' : 'Tambah Produk' }}</span>
+                        <span wire:loading>Menyimpan...</span>
+                    </button>
+                </div>
+            </form>
+        </x-form-modal>
     @endif
 </div>

@@ -26,6 +26,12 @@ class Staff extends Model implements HasMedia
         'join_date',
     ];
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('staff-profile')
+            ->singleFile();
+    }
+
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
