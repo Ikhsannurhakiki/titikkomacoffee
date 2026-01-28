@@ -15,7 +15,7 @@
     <div class="flex items-center space-x-4">
         <div class="flex flex-col font-bold items-end text-sm  mr-6">
             <span class="text-primary">
-                {{ now()->format('d M Y') }}
+                {{ now()->isoFormat('dddd, D MMMM YYYY') }}
             </span>
             <span wire:ignore id="clock" class="text-secondary"></span>
         </div>

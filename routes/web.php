@@ -11,6 +11,7 @@ Volt::route('/product-form', 'product-form')->name('product-form');
 Volt::route('/product-manager', 'product-manager')->name('product-manager');
 Volt::route('/staff-manager', 'staff-manager')->name('staff-manager');
 Volt::route('/dashboard', 'dashboard')->name('dashboard');
+Volt::route('/attendance', 'attendance')->name('attendance');
 
 
 Route::get('/', function () {

@@ -15,10 +15,10 @@ class Attendance extends Model
         'approved_by',
         'clock_in',
         'clock_out',
+        'duration_minutes',
         'status'
     ];
 
-    // Mengubah string dari database menjadi objek Carbon otomatis
     protected $casts = [
         'clock_in' => 'datetime',
         'clock_out' => 'datetime',

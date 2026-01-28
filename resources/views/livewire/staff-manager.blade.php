@@ -81,6 +81,13 @@ new class extends Component {
         return redirect()->route('staff-manager');
     }
 
+    public function toggleStatus($id)
+    {
+        $staff = Staff::find($id);
+        $staff->update(['is_active' => !$staff->is_active]);
+        $this->dispatch('notify', 'Status staff diperbarui!');
+    }
+
     public function delete($id)
     {
         Staff::find($id)->delete();
@@ -117,8 +124,8 @@ new class extends Component {
             @forelse($staffs as $staff)
                 <tr class="hover:bg-gray-50/50 transition text-center">
                     <td class="p-4 flex items-center gap-3 ">
-                        <img src="{{ $staff->getFirstMediaUrl('staff-profile') ?: asset('images/logo.png') }}"
-                            class="w-10 h-10 rounded-lg object-cover bg-gray-100" alt="{{ $staff->name }}">
+                        <img src="{{ $staff->getFirstMediaUrl('staff-profile') ?: asset('images/people-icon.png') }}"
+                            class="w-10 h-10 rounded-full object-cover bg-gray-100" alt="{{ $staff->name }}">
                         <span class="font-bold text-primary text-sm">{{ $staff->name }}</span>
                     </td>
                     <td class="p-4">

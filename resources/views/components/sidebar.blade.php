@@ -125,6 +125,20 @@
                 </li>
             </ul>
             <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
+                <li>
+                    <div class="flex justify-center gap-4">
+                        <x-navlink href="/attendance" title="Attendance" :active="request()->is('attendance*')">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.5 2a1 1 0 011-1h5a1 1 0 110 2h-5a1 1 0 01-1-1zm1-4a1 1 0 100 2h4a1 1 0 100-2h-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </x-navlink>
+                    </div>
+                </li>
+            </ul>
+            <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex justify-center gap-4">
                     <x-navlink href="/profile" title="Profile" :active="request()->is('profile*')">
                         <div class="w-7 h-7 rounded-full border-2 border-primary/20 overflow-hidden">
