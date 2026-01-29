@@ -11,7 +11,8 @@ new class extends Component {
     use WithFileUploads, WithPagination;
 
     protected $paginationTheme = 'tailwind';
-
+    public $product;
+    public $isEdit = false;
     public $search = '';
     public $showModal = false;
 
@@ -33,20 +34,28 @@ new class extends Component {
     public function openModal($id = null)
     {
         $this->resetValidation();
-
-        $this->reset(['name', 'category_id', 'price', 'stock', 'image', 'productId', 'existingImage', 'description']);
+        $this->reset(['name', 'category_id', 'price', 'stock', 'image', 'productId', 'existingImage', 'description', 'slug', 'isEdit', 'product']);
 
         if ($id) {
-            $product = Product::find($id);
-            $this->productId = $product->id;
-            $this->name = $product->name;
-            $this->category_id = $product->category_id;
-            $this->price = $product->price;
-            $this->stock = $product->stock;
-            $this->description = $product->description;
-            $this->existingImage = $product->image;
+            $this->product = Product::find($id);
+
+            $this->productId = $this->product->id;
+            $this->isEdit = true;
+            $this->name = $this->product->name;
+            $this->slug = $this->product->slug;
+            $this->category_id = $this->product->category_id;
+            $this->price = $this->product->price;
+            $this->stock = $this->product->stock;
+            $this->description = $this->product->description;
+
+            $this->existingImage = $this->product->getFirstMediaUrl('thumbnail');
         }
+
         $this->showModal = true;
+
+        if ($id && $this->existingImage) {
+            $this->dispatch('load-existing-image', image: $this->existingImage);
+        }
     }
 
     public function updatedName($value)
@@ -82,13 +91,17 @@ new class extends Component {
             'is_available' => $this->productId ? Product::find($this->productId)->is_available : 1,
         ];
 
-        if ($this->image) {
-            $data['image'] = $this->image->store('products', 'public');
-        } else {
-            $data['image'] = $this->existingImage;
-        }
+        $product = $this->isEdit ? $this->product : new Product();
+        $product->fill($data);
+        $product->save();
 
-        Product::updateOrCreate(['id' => $this->productId], $data);
+        if ($this->image) {
+            $product->clearMediaCollection('thumbnail');
+            $product
+                ->addMedia($this->image->getRealPath())
+                ->usingFileName($this->image->getClientOriginalName())
+                ->toMediaCollection('thumbnail');
+        }
 
         $this->showModal = false;
 
@@ -208,12 +221,11 @@ new class extends Component {
                             <input type="text" wire:model.live="name" placeholder="Contoh: Es Kopi Susu"
                                 class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary">
                             @error('name')
-                                <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                                <span class="text-red-500 text-2xs italic">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="space-y-1">
-                            <label
-                                class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Slug</label>
+                            <label class="text-2xs font-black text-gray-400 uppercase tracking-widest ml-1">Slug</label>
                             <input type="text" wire:model="slug"
                                 class="w-full bg-gray-100 border-none rounded-xl py-3 px-5 font-bold text-gray-500"
                                 readonly>
@@ -223,7 +235,7 @@ new class extends Component {
                             <input type="number" wire:model="stock"
                                 class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary">
                             @error('stock')
-                                <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                                <span class="text-red-500 text-2xs italic">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -240,7 +252,7 @@ new class extends Component {
                                 @endforeach
                             </select>
                             @error('category_id')
-                                <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                                <span class="text-red-500 text-2xs italic">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="space-y-1">
@@ -248,7 +260,7 @@ new class extends Component {
                             <input type="number" wire:model="price" placeholder="0"
                                 class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary">
                             @error('price')
-                                <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                                <span class="text-red-500 text-2xs italic">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -259,23 +271,28 @@ new class extends Component {
                         <textarea wire:model="description" rows="2" placeholder="Jelaskan detail produk di sini..."
                             class="w-full px-4 py-2 rounded-xl border-gray-200 text-sm focus:ring-secondary focus:border-secondary"></textarea>
                         @error('description')
-                            <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                            <span class="text-red-500 text-2xs italic">{{ $message }}</span>
                         @enderror
                     </div>
 
                     {{-- Row 4: FilePond Upload --}}
                     <div class="space-y-1" wire:ignore x-data="{
                         pond: null,
-                        initFilePond() {
-                            this.pond = FilePond.create($refs.input, {
+                    
+                        init() {
+                            this.pond = FilePond.create(this.$refs.input, {
                                 acceptedFileTypes: ['image/*'],
                                 maxFileSize: '1MB',
                                 server: {
-                                    process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-                                        @this.upload('image', file, load, error, progress)
+                                    process: (fieldName, file, metadata, load, error, progress) => {
+                                        @this.upload('image', file, load, error, progress);
                                     },
                                     revert: (filename, load) => {
-                                        @this.removeUpload('image', filename, load)
+                                        @this.removeUpload('image', filename, load);
+                                        load();
+                                    },
+                                    load: (source, load, error, progress, abort, headers) => {
+                                        fetch(source).then(res => res.blob()).then(load);
                                     },
                                 },
                                 allowImagePreview: true,
@@ -283,24 +300,23 @@ new class extends Component {
                                 labelIdle: 'Drop image or <span class=\'text-secondary font-bold\'>Browse</span>',
                                 credits: false,
                             });
+                    
+                            window.addEventListener('load-existing-image', e => {
+                                this.pond.removeFiles();
+                                if (e.detail.image) {
+                                    this.pond.addFile(e.detail.image, {
+                                        type: 'local'
+                                    });
+                                }
+                            });
                         }
-                    }" x-init="initFilePond()">
+                    }">
                         <label class="text-2xs font-black text-gray-400 uppercase">Foto Produk</label>
                         <input type="file" x-ref="input">
-                        @error('image')
-                            <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
-                        @enderror
 
-                        {{-- Info Gambar Lama --}}
-                        @if (!$image && $existingImage)
-                            <div
-                                class="mt-2 flex items-center gap-3 p-2 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                <img src="{{ asset('storage/' . $existingImage) }}"
-                                    class="w-10 h-10 rounded-lg object-cover">
-                                <span class="text-[10px] text-gray-400 uppercase font-bold text-center">Gambar
-                                    Aktif</span>
-                            </div>
-                        @endif
+                        @error('image')
+                            <span class="text-red-500 text-2xs italic">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 

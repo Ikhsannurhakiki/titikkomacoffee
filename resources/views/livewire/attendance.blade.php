@@ -68,6 +68,7 @@ new class extends Component {
     {
         $this->showSuccess = false;
         $this->lastStaff = null;
+        $this->reset(['pin', 'name']);
         $this->resetErrorBag();
     }
 }; ?>
@@ -90,20 +91,20 @@ new class extends Component {
         @if (!$showSuccess)
             {{-- FORM INPUT CARD --}}
             <div
-                class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-8 relative overflow-hidden uppercase">
+                class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-4 relative overflow-hidden uppercase">
                 <div class="absolute top-0 left-0 w-full h-2 bg-secondary"></div>
 
                 <div class="text-center mb-8">
-                    <img src="{{ asset('images/logo-text-v2.png') }}" class="w-32 mx-auto mb-2 object-contain"
+                    <img src="{{ asset('images/logo-text-v2.png') }}" class="w-32 mx-auto object-contain"
                         alt="Logo">
                     <h2 class="text-sm font-black text-primary tracking-widest">Attendance System</h2>
                 </div>
 
-                <div class="space-y-5">
+                <div class="space-y-2 p-8">
                     {{-- Input Nama --}}
                     <div>
                         <input type="text" wire:model.live="name" placeholder="NAMA STAFF"
-                            class="w-full text-center text-xl font-black py-3 bg-gray-50 border-2 border-dashed {{ $errors->has('name') || $errors->has('auth_failed') ? 'border-red-300' : 'border-gray-200' }} rounded-2xl focus:border-secondary focus:ring-0 transition-all text-primary">
+                            class="w-full text-center mb-2 text-xl font-black py-3 bg-gray-50 border-2 border-dashed {{ $errors->has('name') || $errors->has('auth_failed') ? 'border-red-300' : 'border-gray-200' }} rounded-2xl focus:border-secondary focus:ring-0 transition-all text-primary">
                         @error('name')
                             <p class="text-2xs text-red-500 font-bold mt-1 text-center">{{ $message }}</p>
                         @enderror
@@ -128,7 +129,7 @@ new class extends Component {
 
                     {{-- Buttons --}}
                     <div class="grid grid-cols-2 gap-4 pt-2">
-                        <button type="button" wire:click="$set('pin', ''); $set('name', ''); resetErrorBag()"
+                        <button type="button" wire:click="resetForm"
                             class="py-4 font-bold text-gray-400 bg-gray-50 rounded-2xl uppercase text-xs hover:bg-gray-100 transition">
                             Reset
                         </button>

@@ -8,23 +8,12 @@ use Livewire\WithFileUploads;
 new class extends Component {
     use WithPagination;
     use WithFileUploads;
-
+    public $isEdit = false;
     public $search = '';
     public $showModal = false;
+    public $staff;
 
     public $staffId, $name, $position, $phone, $pin, $join_date, $image, $existingImage;
-
-    public function rules()
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'position' => 'required|string|max:100',
-            'phone' => 'required|string|max:20',
-            'pin' => 'required|string|max:6',
-            'join_date' => 'required|date',
-            'image' => $this->staffId ? 'nullable|image|max:1024' : 'required|image|max:1024',
-        ];
-    }
 
     public function openModal($id = null)
     {
@@ -32,16 +21,22 @@ new class extends Component {
         $this->reset(['name', 'position', 'phone', 'pin', 'join_date', 'staffId', 'image', 'existingImage']);
 
         if ($id) {
-            $staff = Staff::find($id);
-            $this->staffId = $staff->id;
-            $this->name = $staff->name;
-            $this->position = $staff->position;
-            $this->phone = $staff->phone;
-            $this->pin = $staff->pin;
-            $this->join_date = $staff->join_date;
-            $this->existingImage = $staff->image;
+            $this->isEdit = true;
+            $this->staff = Staff::find($id);
+            $this->staffId = $this->staff->id;
+            $this->name = $this->staff->name;
+            $this->position = $this->staff->position;
+            $this->phone = $this->staff->phone;
+            $this->pin = $this->staff->pin;
+            $this->join_date = $this->staff->join_date;
+
+            $this->existingImage = $this->staff->getFirstMediaUrl('staff-profile');
         }
         $this->showModal = true;
+
+        if ($id && $this->existingImage) {
+            $this->dispatch('load-existing-image', image: $this->existingImage);
+        }
     }
 
     public function save()
@@ -50,9 +45,9 @@ new class extends Component {
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
-            'pin' => 'required|string|max:6',
+            'pin' => ['required', 'numeric', 'digits:5', $this->staffId ? 'unique:staffs,pin,' . $this->staffId : 'unique:staffs,pin'],
             'join_date' => 'required|date',
-            'image' => 'nullable|image|max:1024',
+            'image' => $this->staffId ? 'nullable|image|max:1024' : 'required|image|max:1024',
         ]);
 
         $data = [
@@ -63,14 +58,12 @@ new class extends Component {
             'join_date' => $this->join_date,
         ];
 
-        if ($this->image) {
-            $data['image'] = $this->image->store('staffs', 'public');
-        } else {
-            $data['image'] = $this->existingImage;
-        }
+        $staff = $this->isEdit ? $this->staff : new Staff();
+        $staff->fill($data);
+        $staff->save();
 
-        $staff = Staff::updateOrCreate(['id' => $this->staffId], $data);
         if ($this->image) {
+            $staff->clearMediaCollection('staff-profile');
             $staff
                 ->addMedia($this->image->getRealPath())
                 ->usingFileName($this->image->getClientOriginalName())
@@ -227,6 +220,9 @@ new class extends Component {
                         <label class="text-2xs font-black text-gray-400 uppercase">No. Telepon</label>
                         <input type="text" wire:model="phone"
                             class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
+                        @error('phone')
+                            <span class="text-red-500 text-2xs font-bold">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 
@@ -234,20 +230,28 @@ new class extends Component {
                     <label class="text-2xsfont-black text-gray-400 uppercase">Tanggal Bergabung</label>
                     <input type="date" wire:model="join_date"
                         class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
+                    @error('join_date')
+                        <span class="text-red-500 text-2xs font-bold">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="space-y-1" wire:ignore x-data="{
                     pond: null,
-                    initFilePond() {
-                        this.pond = FilePond.create($refs.input, {
+                
+                    init() {
+                        this.pond = FilePond.create(this.$refs.input, {
                             acceptedFileTypes: ['image/*'],
                             maxFileSize: '1MB',
                             server: {
-                                process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-                                    @this.upload('image', file, load, error, progress)
+                                process: (fieldName, file, metadata, load, error, progress) => {
+                                    @this.upload('image', file, load, error, progress);
                                 },
                                 revert: (filename, load) => {
-                                    @this.removeUpload('image', filename, load)
+                                    @this.removeUpload('image', filename, load);
+                                    load();
+                                },
+                                load: (source, load, error, progress, abort, headers) => {
+                                    fetch(source).then(res => res.blob()).then(load);
                                 },
                             },
                             allowImagePreview: true,
@@ -255,24 +259,22 @@ new class extends Component {
                             labelIdle: 'Drop image or <span class=\'text-secondary font-bold\'>Browse</span>',
                             credits: false,
                         });
+                
+                        window.addEventListener('load-existing-image', e => {
+                            this.pond.removeFiles();
+                            if (e.detail.image) {
+                                this.pond.addFile(e.detail.image, {
+                                    type: 'local'
+                                });
+                            }
+                        });
                     }
-                }" x-init="initFilePond()">
+                }">
                     <label class="text-2xs font-black text-gray-400 uppercase">Foto Profile</label>
                     <input type="file" x-ref="input">
                     @error('image')
-                        <span class="text-red-500 text-[10px] italic">{{ $message }}</span>
+                        <span class="text-red-500 text-2xs italic">{{ $message }}</span>
                     @enderror
-
-                    {{-- Info Gambar Lama --}}
-                    @if (!$image && $existingImage)
-                        <div
-                            class="mt-2 flex items-center gap-3 p-2 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                            <img src="{{ asset('storage/' . $existingImage) }}"
-                                class="w-10 h-10 rounded-lg object-cover">
-                            <span class="text-[10px] text-gray-400 uppercase font-bold text-center">Gambar
-                                Aktif</span>
-                        </div>
-                    @endif
                 </div>
 
                 <div class="pt-4 flex gap-3">

@@ -28,5 +28,4 @@
             {{ $value }}
         </h2>
     </div>
-    <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-secondary/5 rounded-full blur-2xl"></div>
 </div>

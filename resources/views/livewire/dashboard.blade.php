@@ -2,15 +2,23 @@
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Staff;
+use App\Models\Attendance;
 use Carbon\Carbon;
 use function Livewire\Volt\{state, with};
 with(
     fn() => [
-        'totalSalesToday' => Order::whereDate('created_at', Carbon::today())->sum('total_price'),
-        'totalOrdersToday' => Order::whereDate('created_at', Carbon::today())->count(),
+        'totalSalesToday' => Order::whereDate('created_at', now('Asia/Jakarta'))->sum('total_price'),
+        'totalOrdersToday' => Order::whereDate('created_at', now('Asia/Jakarta'))->count(),
+        'totalOrdersFinishedToday' => Order::whereDate('created_at', now('Asia/Jakarta'))->where('status', 'completed')->count(),
         'outOfStockCount' => Product::where('is_available', 0)->count(),
         'recentOrders' => Order::latest()->take(5)->get(),
         'lowStockProducts' => Product::where('is_available', 0)->take(5)->get(),
+        'activeStaffCount' => Staff::where('is_active', 1)->count(),
+        'StaffOnDuty' => Attendance::where('clock_in', '>=', now('Asia/Jakarta')->copy()->startOfDay())
+            ->where('clock_in', '!=', null)
+            ->where('clock_out', null)
+            ->count(),
     ],
 );
 ?>
@@ -31,7 +39,8 @@ with(
                 </svg>
             </x-stat-card>
 
-            <x-stat-card title="Total Pesanan Hari Ini" value="{{ $totalOrdersToday }} Order" iconColor="secondary">
+            <x-stat-card title="Total Pesanan Hari Ini"
+                value="{{ $totalOrdersToday }}/{{ $totalOrdersFinishedToday }} Order Completed" iconColor="secondary">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
@@ -44,6 +53,13 @@ with(
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
                     </path>
+                </svg>
+            </x-stat-card>
+
+            <x-stat-card title="Staff Hadir Hari Ini" value="{{ $StaffOnDuty }} Orang" iconColor="primary">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
             </x-stat-card>
         </div>
