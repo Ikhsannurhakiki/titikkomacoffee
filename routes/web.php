@@ -12,7 +12,7 @@ Volt::route('/product-manager', 'product-manager')->name('product-manager');
 Volt::route('/staff-manager', 'staff-manager')->name('staff-manager');
 Volt::route('/dashboard', 'dashboard')->name('dashboard');
 Volt::route('/attendance', 'attendance')->name('attendance');
-
+Volt::route('/product-cutomizer', 'product-cutomizer')->name('product-cutomizer');
 
 Route::get('/', function () {
     return view('welcome');

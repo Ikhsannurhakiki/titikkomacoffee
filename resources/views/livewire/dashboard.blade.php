@@ -103,8 +103,8 @@ with(
 
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold text-gray-800 uppercase text-xs tracking-wider flex items-center text-red-600">
-                        <span class="mr-2">⚡</span> Stok Perlu Diisi
+                    <h3 class="font-bold text-gray-600 uppercase text-xs tracking-wider flex items-center text-red-600">
+                        Stok Perlu Diisi
                     </h3>
                 </div>
                 <div class="space-y-3">

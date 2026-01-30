@@ -1,4 +1,4 @@
-<div class="flex flex-col h-screen bg-white shadow-xl border-l border-gray-200 w-full max-w-[340px] ml-auto">
+<div class="flex flex-col h-screen bg-white shadow-xl border-l border-gray-200 w-full max-w-85 ml-auto">
 
     <div class="p-3 flex items-center justify-between border-b border-gray-100 gap-2">
         <button

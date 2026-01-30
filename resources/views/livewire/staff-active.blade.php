@@ -31,10 +31,8 @@ new class extends Component {
         $this->showPinModal = true;
     }
 
-    // Verifikasi PIN dan Proses Approve
     public function verifyAndApprove()
     {
-        // Ganti '1234' dengan PIN yang kamu inginkan atau ambil dari DB
         $authorizedPin = '1234';
 
         if ($this->pinInput === $authorizedPin) {
@@ -168,7 +166,7 @@ new class extends Component {
     {{-- MODAL PIN OVERLAY --}}
     @if ($showPinModal)
         <div
-            class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md transition-all">
+            class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md transition-all">
             <div
                 class="bg-white w-full max-w-xs rounded-3xl shadow-2xl p-8 text-center animate-in zoom-in-95 duration-200">
                 <div

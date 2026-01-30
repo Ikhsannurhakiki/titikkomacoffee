@@ -3,11 +3,16 @@
 use Livewire\Volt\Component;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductOption;
 
 new class extends Component {
     public $search = '';
     public $selectedCategory = null;
     public $cart = [];
+
+    public $showCustomizer = false;
+    public $selectedProduct = null;
+    public $customForm = [];
 
     public function mount()
     {
@@ -19,48 +24,73 @@ new class extends Component {
         $this->selectedCategory = $id;
     }
 
-    public function addToCart($productId)
+    public function openCustomizer($productId)
     {
-        $product = Product::find($productId);
+        $product = Product::with('optionGroups.options')->find($productId);
 
-        if (!$product) {
+        if (!$product || !$product->is_available) {
             return;
         }
 
-        if (!$product->is_available) {
-            session()->flash('error', 'Produk ini sedang Out of Stock!');
+        $this->selectedProduct = $product;
+        $this->customForm = [];
+
+        foreach ($product->optionGroups as $group) {
+            $this->customForm[$group->id] = $group->options->first()->id ?? null;
+        }
+
+        $this->showCustomizer = true;
+    }
+
+    public function confirmAddToCart()
+    {
+        if (!$this->selectedProduct) {
             return;
         }
 
-        if (isset($this->cart[$productId])) {
-            $this->cart[$productId]['qty']++;
+        $selectedOptionsDetails = ProductOption::whereIn('id', array_values($this->customForm))->get();
+        $totalExtraPrice = $selectedOptionsDetails->sum('extra_price');
+        $finalPrice = $this->selectedProduct->price + $totalExtraPrice;
+        $optionLabels = $selectedOptionsDetails->pluck('option_name')->implode(', ');
+        $uniqueId = $this->selectedProduct->id . '-' . md5(json_encode($this->customForm));
+
+        if (isset($this->cart[$uniqueId])) {
+            $this->cart[$uniqueId]['qty']++;
         } else {
-            $this->cart[$productId] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->price,
+            $this->cart[$uniqueId] = [
+                'id' => $this->selectedProduct->id,
+                'unique_key' => $uniqueId,
+                'name' => $this->selectedProduct->name,
+                'price' => $finalPrice,
                 'qty' => 1,
-                'image' => $product->image,
+                'image' => $this->selectedProduct->image,
+                'option_text' => $optionLabels,
+                'options_ids' => $this->customForm,
             ];
         }
 
         $this->syncSession();
+        $this->showCustomizer = false;
     }
 
-    public function incrementQty($productId)
+    public function incrementQty($uniqueId)
     {
-        $this->cart[$productId]['qty']++;
-        $this->syncSession();
-    }
-
-    public function decrementQty($productId)
-    {
-        if ($this->cart[$productId]['qty'] > 1) {
-            $this->cart[$productId]['qty']--;
-        } else {
-            unset($this->cart[$productId]);
+        if (isset($this->cart[$uniqueId])) {
+            $this->cart[$uniqueId]['qty']++;
+            $this->syncSession();
         }
-        $this->syncSession();
+    }
+
+    public function decrementQty($uniqueId)
+    {
+        if (isset($this->cart[$uniqueId])) {
+            if ($this->cart[$uniqueId]['qty'] > 1) {
+                $this->cart[$uniqueId]['qty']--;
+            } else {
+                unset($this->cart[$uniqueId]);
+            }
+            $this->syncSession();
+        }
     }
 
     public function clearCart()
@@ -95,6 +125,7 @@ new class extends Component {
         <x-header title="Cashier">
             <x-search-bar placeholder="Cari menu item" model="search" class="w-full md:w-96" />
         </x-header>
+        {{-- Konten Utama --}}
         <div class="max-w-7xl mx-auto px-6">
             {{-- Kategori Tabs --}}
             <div class="flex gap-2 mb-6 overflow-x-auto scrollbar-hide">
@@ -113,8 +144,7 @@ new class extends Component {
             {{-- Grid Produk --}}
             <div class="grid grid-cols-1 sm:grid-cols- md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                 @forelse($products as $product)
-                    <div wire:click="addToCart({{ $product->id }})" wire:key="product-{{ $product->id }}"
-                        @disabled(!$product->is_available)>
+                    <div wire:click="openCustomizer({{ $product->id }})" wire:key="product-{{ $product->id }}">
                         <x-product-item-card :product="$product" />
                     </div>
                 @empty
@@ -125,7 +155,7 @@ new class extends Component {
         </div>
     </div>
 
-    <aside class="flex flex-col h-screen bg-white shadow-xl border-l border-gray-200 w-full max-w-[340px] ml-auto">
+    <aside class="flex flex-col h-screen bg-white shadow-xl border-l border-gray-200 w-full max-w-85 ml-auto">
         {{-- Header Keranjang --}}
         <div class="p-3 flex items-center justify-between border-b border-gray-100 gap-2">
             <button
@@ -156,28 +186,40 @@ new class extends Component {
 
         {{-- Daftar Item Keranjang --}}
         <div class="flex-1 overflow-y-auto p-3 space-y-2">
-            @forelse($cart as $id => $item)
+            @forelse($cart as $uniqueId => $item)
                 <div class="bg-gray-50/50 border border-gray-100 rounded-xl p-2.5">
-                    <div class="flex justify-between items-start mb-2">
+                    <div class="flex justify-between items-start">
                         <div class="min-w-0 flex-1">
-                            <h4 class="text-[11px] font-black text-secondary truncate uppercase">{{ $item['name'] }}
+                            <h4 class="text-[11px] font-black text-secondary truncate uppercase">
+                                {{ $item['name'] }}
                             </h4>
-                            <span
-                                class="text-2xs font-bold text-primary">Rp{{ number_format($item['price'], 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex items-center bg-white border border-gray-200 rounded-lg ml-2">
-                            <button wire:click="decrementQty({{ $id }})"
-                                class="p-1 px-2 hover:bg-gray-50 text-secondary">-</button>
-                            <span
-                                class="px-2 text-2xs font-black text-secondary border-x border-gray-100">{{ $item['qty'] }}</span>
-                            <button wire:click="incrementQty({{ $id }})"
-                                class="p-1 px-2 hover:bg-gray-50 text-secondary">+</button>
+                            @if (!empty($item['option_text']))
+                                <p class="text-[9px] text-primary font-bold uppercase tracking-tight">
+                                    {{ $item['option_text'] }}
+                                </p>
+                            @endif
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-2xs font-bold text-gray-500">
+                                    {{ $item['qty'] }}x Rp{{ number_format($item['price'], 0, ',', '.') }}
+                                </span>
+
+                                <div class="flex items-center gap-2">
+                                    <button wire:click="decrementQty('{{ $uniqueId }}')"
+                                        class="p-1 bg-white border rounded shadow-sm text-gray-400 hover:text-red-500">-</button>
+                                    <span class="text-xs font-bold">{{ $item['qty'] }}</span>
+                                    <button wire:click="incrementQty('{{ $uniqueId }}')"
+                                        class="p-1 bg-white border rounded shadow-sm text-gray-400 hover:text-primary">+</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="h-full flex flex-col items-center justify-center opacity-20 italic text-sm py-20">
-                    <p>No items added</p>
+                <div class="h-full flex flex-col items-center justify-center text-gray-300 opacity-50">
+                    <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <p class="text-xs font-bold uppercase">Cart is empty</p>
                 </div>
             @endforelse
         </div>
@@ -230,4 +272,80 @@ new class extends Component {
             </div>
         </div>
     </aside>
+    @if ($showCustomizer && $selectedProduct)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div
+                class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+
+                {{-- Header Modal --}}
+                <div class="p-3 border-b border-gray-100 bg-secondary flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-900 uppercase tracking-tight">
+                        {{ $selectedProduct->name }}
+                    </h3>
+                    <button wire:click="$set('showCustomizer', false)"
+                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Body Modal --}}
+                <div class="p-6 space-y-8 max-h-[60vh] overflow-y-auto bg-white">
+                    @foreach ($selectedProduct->optionGroups as $group)
+                        <div class="space-y-3">
+                            <label class="block text-xs font-black text-primary uppercase tracking-widest">
+                                {{ $group->name }}
+                            </label>
+
+                            <div class="grid grid-cols-4 gap-3 mb-4">
+                                @foreach ($group->options as $option)
+                                    <button wire:click="$set('customForm.{{ $group->id }}', {{ $option->id }})"
+                                        class="relative p-4 rounded-2xl border-2 text-left transition-all duration-200
+                                    {{ ($customForm[$group->id] ?? '') == $option->id
+                                        ? 'border-secondary bg-secondary/5 text-secondary shadow-md'
+                                        : 'border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-200 hover:bg-gray-100' }}">
+
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="font-bold text-sm leading-tight">{{ $option->option_name }}</span>
+                                            @if ($option->extra_price > 0)
+                                                <span class="text-2xs mt-1 font-medium opacity-70">
+                                                    +Rp{{ number_format($option->extra_price, 0, ',', '.') }}
+                                                </span>
+                                            @else
+                                                <span class="text-2xs mt-1 font-medium opacity-70">
+                                                    No Extra Charge
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @if (($customForm[$group->id] ?? '') == $option->id)
+                                            <div class="absolute top-2 right-2">
+                                                <div class="w-2 h-2 rounded-full bg-primary"></div>
+                                            </div>
+                                        @endif
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+
+                    @if ($selectedProduct->optionGroups->isEmpty())
+                        <div class="text-center py-8">
+                            <p class="text-gray-400 text-sm italic">Produk ini tidak memiliki opsi tambahan.</p>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Footer Modal --}}
+                <div class="p-3 bg-gray-50 border-t border-gray-100">
+                    <button wire:click="confirmAddToCart"
+                        class="w-full bg-primary text-white py-2 rounded-full font-black uppercase tracking-widest shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95 transition-all">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Category;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
+use App\Models\ProductOptionGroup;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model implements HasMedia
 {
@@ -38,5 +41,10 @@ class Product extends Model implements HasMedia
     public function getFormattedPriceAttribute()
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
+    public function optionGroups()
+    {
+        return $this->belongsToMany(ProductOptionGroup::class, 'product_option_group_pivot');
     }
 }
