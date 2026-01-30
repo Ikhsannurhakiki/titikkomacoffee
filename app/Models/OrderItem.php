@@ -15,7 +15,7 @@ class OrderItem extends Model
         'price',
         'selected_options',
         'subtotal',
-        'notes'
+        // 'notes'
     ];
 
     protected $casts = [

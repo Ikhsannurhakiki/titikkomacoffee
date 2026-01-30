@@ -5,7 +5,6 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 
 new class extends Component {
-    // State untuk Modal PIN
     public $showPinModal = false;
     public $pinInput = '';
     public $selectedAttendanceId = null;
@@ -13,7 +12,6 @@ new class extends Component {
 
     public function with()
     {
-        // Ambil data staf yang masuk hari ini dan belum pulang
         $all = Attendance::with('staff', 'approver')->whereDate('clock_in', Carbon::today())->whereNull('clock_out')->latest()->get();
 
         return [
@@ -22,7 +20,6 @@ new class extends Component {
         ];
     }
 
-    // Munculkan Modal PIN
     public function askForPin($attendanceId)
     {
         $this->selectedAttendanceId = $attendanceId;
@@ -49,7 +46,6 @@ new class extends Component {
         }
     }
 
-    // Batalkan Approval
     public function cancelApprove($attendanceId)
     {
         Attendance::find($attendanceId)?->update([

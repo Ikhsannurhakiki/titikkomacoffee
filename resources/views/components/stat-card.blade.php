@@ -22,9 +22,11 @@
         </div>
     </div>
 
-    <div class="relative z-10">
-        <p class="text-2xs font-black text-gray-400 uppercase tracking-widest mb-1">{{ $title }}</p>
-        <h2 class="text-2xl font-black text-secondary leading-none">
+    <div class="relative flex flex-col justify-center self-center">
+        <p class="text-2xs font-black text-gray-400 uppercase tracking-widest mb-1.5 leading-tight">
+            {{ $title }}
+        </p>
+        <h2 class="text-2xl font-black text-secondary leading-tight tracking-tight">
             {{ $value }}
         </h2>
     </div>

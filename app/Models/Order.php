@@ -10,9 +10,11 @@ class Order extends Model
 {
     protected $fillable = [
         'invoice_number',
-        'user_id',
+        'staff_id',
         'total_price',
         'paid_amount',
+        'subtotal',
+        'tax_amount',
         'change_amount',
         'payment_method',
         'status',
@@ -27,5 +29,10 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class);
     }
 }

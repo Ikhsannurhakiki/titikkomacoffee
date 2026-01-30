@@ -40,7 +40,7 @@ with(
             </x-stat-card>
 
             <x-stat-card title="Total Pesanan Hari Ini"
-                value="{{ $totalOrdersToday }}/{{ $totalOrdersFinishedToday }} Order Completed" iconColor="secondary">
+                value="{{ $totalOrdersFinishedToday }}/{{ $totalOrdersToday }} Order Completed" iconColor="secondary">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
@@ -82,12 +82,24 @@ with(
                         <tbody class="divide-y divide-gray-50">
                             @forelse ($recentOrders as $order)
                                 <tr class="hover:bg-gray-50/50 transition">
-                                    <td class="px-6 py-4 font-bold text-center text-gray-400">#{{ $order->id }}</td>
+                                    <td class="px-6 py-4 font-bold text-center text-gray-400">
+                                        #{{ $order->invoice_number }}</td>
                                     <td class="px-6 py-4 font-bold text-gray-800">Rp
                                         {{ number_format($order->total_price, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4 text-right">
-                                        <span
-                                            class="px-2 py-1 bg-green-50 text-green-600 rounded-lg text-2xs font-black shadow-sm">PAID</span>
+                                        @if ($order->status == 'completed')
+                                            <span
+                                                class="px-2 py-1 bg-green-100 text-green-600 rounded-md text-[9px] font-black uppercase">Completed</span>
+                                        @elseif ($order->status == 'processing')
+                                            <span
+                                                class="px-2 py-1 bg-yellow-100 text-yellow-600 rounded-md text-[9px] font-black uppercase">Processing</span>
+                                        @elseif ($order->status == 'cancelled')
+                                            <span
+                                                class="px-2 py-1 bg-red-100 text-red-600 rounded-md text-[9px] font-black uppercase">Cancelled</span>
+                                        @else
+                                            <span
+                                                class="px-2 py-1 bg-blue-100 text-blue-600 rounded-md text-[9px] font-black uppercase">Unknown</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

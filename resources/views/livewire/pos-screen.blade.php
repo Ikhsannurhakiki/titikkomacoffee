@@ -3,7 +3,10 @@
 use Livewire\Volt\Component;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\ProductOption;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 new class extends Component {
     public $search = '';
@@ -12,7 +15,13 @@ new class extends Component {
 
     public $showCustomizer = false;
     public $selectedProduct = null;
+    public $showReceipt = false;
     public $customForm = [];
+    public $latestOrder = null;
+
+    public $showPaymentModal = false;
+    public $paidAmountInput = 0;
+    public $changeAmount = 0;
 
     public function mount()
     {
@@ -37,6 +46,10 @@ new class extends Component {
 
         foreach ($product->optionGroups as $group) {
             $this->customForm[$group->id] = $group->options->first()->id ?? null;
+        }
+        if ($product->optionGroups->isEmpty()) {
+            $this->confirmAddToCart();
+            return;
         }
 
         $this->showCustomizer = true;
@@ -116,6 +129,81 @@ new class extends Component {
             'tax' => $tax,
             'total' => $subtotal + $tax,
         ];
+    }
+
+    public function openPayment()
+    {
+        if (empty($this->cart)) {
+            session()->flash('error', 'Keranjang masih kosong!');
+            return;
+        }
+
+        $subtotal = collect($this->cart)->sum(fn($item) => $item['price'] * $item['qty']);
+        $total = $subtotal + $subtotal * 0.1;
+
+        $this->paidAmountInput = $total;
+        $this->changeAmount = 0;
+        $this->showPaymentModal = true;
+    }
+
+    public function updatedPaidAmountInput($value)
+    {
+        $subtotal = collect($this->cart)->sum(fn($item) => $item['price'] * $item['qty']);
+        $total = $subtotal + $subtotal * 0.1;
+        $this->changeAmount = max(0, (float) $value - $total);
+    }
+
+    public function payNow()
+    {
+        if (empty($this->cart)) {
+            session()->flash('error', 'Keranjang masih kosong!');
+            return;
+        }
+        $subtotal = collect($this->cart)->sum(fn($item) => $item['price'] * $item['qty']);
+        $tax = $subtotal * 0.1;
+        $total = $subtotal + $tax;
+        if ((float) $this->paidAmountInput < $total) {
+            session()->flash('error', 'Uang yang dimasukkan kurang dari total tagihan!');
+            return;
+        }
+        DB::beginTransaction();
+        try {
+            $order = Order::create([
+                'invoice_number' => 'INV-' . strtoupper(Str::random(8)),
+                'staff_id' => 1,
+                'subtotal' => $subtotal,
+                'tax_amount' => $tax,
+                'total_price' => $total,
+                'paid_amount' => (float) $this->paidAmountInput,
+                'change_amount' => (float) $this->changeAmount,
+                'payment_method' => 'cash',
+                'status' => 'processing',
+                // 'notes' => null,
+            ]);
+
+            foreach ($this->cart as $item) {
+                $order->items()->create([
+                    'product_id' => $item['id'],
+                    'product_name' => $item['name'],
+                    'quantity' => $item['qty'],
+                    'price' => $item['price'],
+                    'subtotal' => $item['price'] * $item['qty'],
+                    'options' => $item['option_text'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+
+            $this->latestOrder = $order->load(['items']);
+            $this->clearCart();
+            $this->showPaymentModal = false;
+            $this->showReceipt = true;
+
+            session()->flash('success', 'Transaksi Berhasil! No: ' . $order->invoice_number);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
+        }
     }
 }; ?>
 
@@ -261,13 +349,32 @@ new class extends Component {
                     Hold Order
                 </button>
 
-                <button
-                    class="flex flex-col items-center justify-center bg-primary text-white py-3 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all text-2xs uppercase shadow-md shadow-primary/20">
-                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2.5"
-                        viewBox="0 0 24 24">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Pay Now
+                <button wire:click="openPayment" wire:loading.attr="disabled" {{ empty($cart) ? 'disabled' : '' }}
+                    class="w-full flex flex-col items-center justify-center py-3 rounded-xl font-bold transition-all text-2xs uppercase shadow-md 
+           {{ empty($cart)
+               ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+               : 'bg-primary text-white hover:brightness-110 active:scale-95 shadow-primary/20' }}">
+
+                    {{-- Loading Spinner --}}
+                    <div wire:loading wire:target="openPayment">
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                    </div>
+
+                    <div wire:loading.remove wire:target="openPayment" class="flex flex-col items-center">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Pay Now
+                    </div>
                 </button>
             </div>
         </div>
@@ -348,4 +455,241 @@ new class extends Component {
             </div>
         </div>
     @endif
+    @if ($showReceipt && $latestOrder)
+        <div class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div
+                class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+
+                {{-- Area Struk (Yang akan dicetak) --}}
+                <div id="receipt-print" class=" bg-white text-gray-800 font-mono text-sm">
+                    <div class="text-center">
+                        <div class="flex justify-center items-center mb-0"> {{-- Margin bottom nolkan dulu --}}
+                            <img src="{{ asset('images/logo-text-v2.png') }}" class="w-48 h-auto object-contain">
+                            {{-- Biarkan tinggi menyesuaikan secara alami --}}
+                        </div>
+                        <p class="text-2xs text-gray-500 font-medium">Jl. Sudirman No. 123, Pekanbaru</p>
+                        <div class="border-b border-dashed my-4"></div>
+                        <p class="text-2xs uppercase font-bold text-gray-700">No:
+                            {{ $latestOrder->invoice_number }}</p>
+                        <p class="text-2xs text-gray-500" x-data="{
+                            formatDate(dateString) {
+                                return new Intl.DateTimeFormat('id-ID', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                }).format(new Date(dateString));
+                            }
+                        }">
+                            <span x-text="formatDate('{{ $latestOrder->created_at->toIso8601String() }}')"></span>
+                        </p>
+                    </div>
+
+                    <div class="px-6">
+                        <div class="space-y-3 py-2">
+                            @foreach ($latestOrder->items as $item)
+                                <div class="flex flex-col">
+                                    <div class="flex justify-between font-bold">
+                                        <span>{{ $item->quantity }}x {{ $item->product->name }}</span>
+                                        <span>{{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
+                                    </div>
+                                    @if ($item->option_text)
+                                        <span class="text-2xs text-gray-500 italic">-
+                                            {{ $item->option_text }}</span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="border-b border-dashed my-4"></div>
+
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span>Subtotal</span>
+                                <span
+                                    class="font-bold">Rp{{ number_format($latestOrder->subtotal, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Pajak (10%)</span>
+                                <span
+                                    class="font-bold">Rp{{ number_format($latestOrder->tax_amount, 0, ',', '.') }}</span>
+                            </div>
+
+                            {{-- Info Tunai & Kembalian --}}
+                            <div class="flex justify-between text-gray-500">
+                                <span>Tunai</span>
+                                <span>Rp{{ number_format($latestOrder->paid_amount, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between text-gray-500 border-b border-gray-100 pb-1">
+                                <span>Kembalian</span>
+                                <span>Rp{{ number_format($latestOrder->change_amount, 0, ',', '.') }}</span>
+                            </div>
+
+                            <div class="flex justify-between text-lg font-black pt-2 text-primary">
+                                <span>TOTAL</span>
+                                <span>Rp{{ number_format($latestOrder->total_price, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-8 text-2xs text-gray-400 italic">
+                            Terima kasih atas kunjungan Anda!<br>
+                            Barang yang sudah dibeli tidak dapat ditukar.
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="p-4 bg-gray-50 flex gap-3 border-t">
+                    <button onclick="window.print()"
+                        class="flex-1 bg-secondary text-white py-3 rounded-xl font-bold text-xs uppercase hover:bg-secondary/90 transition">
+                        Cetak Struk
+                    </button>
+                    <button wire:click="$set('showReceipt', false)"
+                        class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold text-xs uppercase hover:bg-gray-300 transition">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            @media print {
+                body * {
+                    visibility: hidden;
+                }
+
+                #receipt-print,
+                #receipt-print * {
+                    visibility: visible;
+                }
+
+                #receipt-print {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                }
+            }
+        </style>
+    @endif
+
+    @if ($showPaymentModal)
+        <div class="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-black uppercase text-secondary">Payment Confirmation</h3>
+                    <button wire:click="$set('showPaymentModal', false)" class="text-gray-400 hover:text-red-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-8 space-y-6">
+                    {{-- Info Total --}}
+                    <div class="text-center">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Payable</p>
+                        <h2 class="text-4xl font-black text-primary">Rp{{ number_format($total, 0, ',', '.') }}</h2>
+                    </div>
+                    @if (session()->has('error'))
+                        <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 shadow-sm rounded-r-lg">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="font-bold uppercase text-xs text-wrap">{{ session('error') }}</span>
+                            </div>
+                        </div>
+                    @endif
+                    <hr class="border-dashed">
+
+                    {{-- Input Uang --}}
+                    <div class="space-y-2">
+                        <label class="text-2xs font-black uppercase text-gray-500">Uang Diterima (Cash)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Rp</span>
+                            <input type="number" wire:model.live="paidAmountInput"
+                                class="w-full pl-12 pr-4 py-4 bg-gray-100 border-none rounded-2xl text-xl font-black focus:ring-2 focus:ring-primary transition-all">
+                        </div>
+                    </div>
+
+                    {{-- Kembalian --}}
+                    <div class="bg-secondary/5 p-4 rounded-2xl flex justify-between items-center">
+                        <span class="text-xs font-bold text-secondary uppercase">Kembalian</span>
+                        <span class="text-xl font-black text-secondary">
+                            Rp{{ number_format($changeAmount, 0, ',', '.') }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-gray-50 border-t">
+                    @php
+                        $isAmountInsufficient = $paidAmountInput < $total || $paidAmountInput <= 0;
+                    @endphp
+
+                    <button wire:click="payNow" wire:loading.attr="disabled"
+                        {{ $isAmountInsufficient ? 'disabled' : '' }}
+                        class="w-full py-4 rounded-2xl font-black uppercase tracking-widest transition-all flex justify-center items-center gap-2 shadow-lg
+        {{ $isAmountInsufficient
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+            : 'bg-primary text-white hover:brightness-110 active:scale-95 shadow-primary/20' }}">
+
+                        {{-- State: Loading --}}
+                        <div wire:loading wire:target="payNow" class="flex items-center gap-2">
+                            <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </div>
+
+                        {{-- State: Normal / Ready --}}
+                        <div wire:loading.remove wire:target="payNow" class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Complete Order</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- <div class="max-w-7xl mx-auto px-6 mt-4"> --}}
+    {{-- Notifikasi Sukses --}}
+    {{-- @if (session()->has('success'))
+            <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 shadow-sm rounded-r-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="font-bold uppercase text-xs">{{ session('success') }}</span>
+                </div>
+            </div>
+        @endif --}}
+
+    {{-- Notifikasi Error
+        @if (session()->has('error'))
+            <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 shadow-sm rounded-r-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="font-bold uppercase text-xs text-wrap">{{ session('error') }}</span>
+                </div>
+            </div>
+        @endif --}}
+    {{-- </div> --}}
 </div>
