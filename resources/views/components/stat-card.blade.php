@@ -23,7 +23,7 @@
     </div>
 
     <div class="relative flex flex-col justify-center self-center">
-        <p class="text-2xs font-black text-gray-400 uppercase tracking-widest mb-1.5 leading-tight">
+        <p class="text-2xs font-black text-primary uppercase tracking-widest mb-1.5 leading-tight">
             {{ $title }}
         </p>
         <h2 class="text-2xl font-black text-secondary leading-tight tracking-tight">
