@@ -59,81 +59,15 @@ with(
             </x-stat-card>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-8 gap-6">
             {{-- Chart Section --}}
-            <livewire:sales-chart />
+            <livewire:sales-chart class="col-span-3" />
 
             {{-- Recent Activity Table --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-6 border-b border-gray-50 flex justify-between items-center">
-                    <h3 class="font-bold text-gray-800 uppercase text-xs tracking-wider">Transaksi Terakhir</h3>
-                    <a href="#" class="text-primary text-[10px] font-black hover:underline">LIHAT SEMUA</a>
-                </div>
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-50/50">
-                        <tr class="text-gray-400 uppercase text-[10px] tracking-widest">
-                            <th class="px-6 py-3 font-semibold">Invoice</th>
-                            <th class="px-6 py-3 font-semibold">Total</th>
-                            <th class="px-6 py-3 font-semibold text-right">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50">
-                        @forelse ($recentOrders as $order)
-                            <tr class="hover:bg-gray-50/50 transition">
-                                <td class="px-6 py-4 font-bold text-gray-400">#{{ $order->invoice_number }}</td>
-                                <td class="px-6 py-4 font-bold text-gray-800">Rp
-                                    {{ number_format($order->total_price, 0, ',', '.') }}</td>
-                                <td class="px-6 py-4 text-right">
-                                    <span
-                                        class="px-2 py-1 rounded-md text-[9px] font-black uppercase {{ $order->status == 'completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600' }}">
-                                        {{ $order->status }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="px-6 py-10 text-center text-gray-400 italic text-sm">Belum ada
-                                    transaksi</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold text-gray-600 uppercase text-xs tracking-wider flex items-center text-red-600">
-                        Stok Perlu Diisi
-                    </h3>
-                </div>
-                <div class="space-y-3">
-                    @forelse($lowStockProducts as $product)
-                        <div
-                            class="group flex items-center justify-between p-3 bg-gray-50/50 rounded-xl border border-transparent hover:border-red-100 hover:bg-red-50/30 transition-all">
-                            <div class="flex items-center">
-                                <div class="relative">
-                                    <img src="{{ $product->getFirstMediaUrl('thumbnail') ?: asset('images/logo.png') }}"
-                                        class="w-12 h-12 rounded-lg object-cover grayscale opacity-70 group-hover:opacity-100 transition shadow-sm">
-                                </div>
-                                <div class="ml-4">
-                                    <p class="text-sm font-bold text-gray-700">{{ $product->name }}</p>
-                                    <p class="text-2xs text-gray-400 uppercase tracking-tighter">
-                                        {{ $product->category->name ?? 'Uncategorized' }}</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span
-                                    class="px-2 py-1 bg-red-100 text-red-600 rounded-md text-[9px] font-black uppercase">Kosong</span>
-                            </div>
-                        </div>
-                    @empty
-                        <div
-                            class="py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-100 rounded-2xl">
-                            <span class="text-2xl mb-2">✅</span>
-                            <p class="text-gray-400 text-sm font-medium italic">Semua persediaan masih aman!</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
+            <livewire:recent-orders class="col-span-3" />
+
+            {{-- Out of Stock --}}
+            <livewire:out-of-stock class="col-span-2" />
         </div>
     </div>
 </div>

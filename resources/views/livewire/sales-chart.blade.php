@@ -23,7 +23,7 @@ with(
 );
 ?>
 
-<div wire:poll.60s class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100" wire:ignore>
+<div {{ $attributes->merge(['class' => 'bg-white p-6 rounded-2xl shadow-sm border border-gray-100']) }} wire:ignore>
     <div class="flex justify-between items-center mb-4">
         <h3 class="font-bold text-primary uppercase text-xs tracking-wider">Earnings Trend (7 Days)</h3>
 
