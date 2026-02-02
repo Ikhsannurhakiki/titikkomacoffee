@@ -63,7 +63,7 @@
                 <li>
                     <div class="flex justify-center gap-4">
                         {{-- Menu Orders --}}
-                        <x-navlink href="/orders" title="Order List">
+                        <x-navlink href="/order-list" title="Order List">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>

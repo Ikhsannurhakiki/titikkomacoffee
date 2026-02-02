@@ -10,9 +10,10 @@ with(
 );
 ?>
 
-<div {{ $attributes->merge(['class' => 'bg-white p-6 rounded-2xl shadow-sm border border-gray-100']) }}>
-    <div class="flex justify-between items-center mb-6">
-        <h3 class="font-bold text-gray-600 uppercase text-xs tracking-wider flex items-center text-red-600">
+<div {{ $attributes->merge(['class' => 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden']) }}
+    wire:ignore>
+    <div class="p-4 border-b bg-primary/15 border-primary/25 flex justify-between items-center group">
+        <h3 class="font-bold uppercase text-xs tracking-wider flex items-center text-primary">
             <svg xmlns="http://www.w3.org/2000/01/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -20,9 +21,22 @@ with(
             </svg>
             Out of Stocks
         </h3>
-        <span class="text-2xs bg-red-50 text-red-500 px-2 py-0.5 rounded-full font-bold">
-            {{ $lowStockProducts->count() }} Urgent
-        </span>
+
+        <div class="flex items-center gap-2">
+            <span class="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-black">
+                {{ $lowStockProducts->count() }}
+            </span>
+
+            {{-- Ikon Navigasi Detail --}}
+            <a href="{{ route('dashboard') }}" wire:navigate
+                class="p-1 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all duration-300"
+                title="Lihat Detail">
+                <svg xmlns="http://www.w3.org/2000/01/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                    stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                </svg>
+            </a>
+        </div>
     </div>
 
     <div class="space-y-3">
@@ -39,9 +53,7 @@ with(
                     <div class="ml-4">
                         <p class="text-sm font-bold text-gray-700 group-hover:text-red-700 transition-colors">
                             {{ $product->name }}</p>
-                        <p class="text-2xs text-gray-400 uppercase tracking-tighter">
-                            {{ $product->category->name ?? 'Uncategorized' }}
-                        </p>
+
                     </div>
                 </div>
             </div>

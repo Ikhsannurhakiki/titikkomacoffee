@@ -59,15 +59,19 @@ with(
             </x-stat-card>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-8 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
             {{-- Chart Section --}}
-            <livewire:sales-chart class="col-span-3" />
+            <livewire:sales-chart />
 
             {{-- Recent Activity Table --}}
-            <livewire:recent-orders class="col-span-3" />
+            <livewire:recent-orders />
 
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+
+            <livewire:best-seller />
             {{-- Out of Stock --}}
-            <livewire:out-of-stock class="col-span-2" />
+            <livewire:out-of-stock />
         </div>
     </div>
 </div>

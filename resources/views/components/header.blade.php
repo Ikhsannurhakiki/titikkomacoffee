@@ -3,9 +3,10 @@
     'subtitle' => 'Subtitle',
 ])
 
-<div {{ $attributes->merge(['class' => 'flex justify-between items-center mb-8 bg-white py-3 px-6 shadow-sm']) }}>
+<div
+    {{ $attributes->merge(['class' => 'sticky top-0 z-[100] flex justify-between mb-6 items-center bg-white/80 backdrop-blur-md py-3.5 px-8 border-b border-gray-100 shadow-sm']) }}>
     <div>
-        <h1 class="text-2xl font-bold text-secondary tracking-tight">{{ $title }}</h1>
+        <h1 class="text-2xl font-black text-secondary tracking-tight">{{ $title }}</h1>
     </div>
 
     <div class="flex items-center space-x-2">
@@ -13,15 +14,15 @@
     </div>
 
     <div class="flex items-center space-x-4">
-        <div class="flex flex-col font-bold items-end text-sm  mr-6">
-            <span class="text-primary">
+        <div class="flex flex-col font-bold items-end text-xs mr-6">
+            <span class="text-primary uppercase tracking-tighter">
                 {{ now()->isoFormat('dddd, D MMMM YYYY') }}
             </span>
-            <span wire:ignore id="clock" class="text-secondary"></span>
+            <span wire:ignore id="clock" class="text-secondary font-black"></span>
         </div>
 
         <button wire:click="$refresh"
-            class="p-3 bg-secondary text-white rounded-xl transition-all duration-300 shadow-sm group">
+            class="p-2.5 bg-secondary text-white rounded-xl transition-all duration-300 shadow-md hover:shadow-secondary/20 group active:scale-95">
             <svg class="w-5 h-5 group-hover:rotate-180 transition-transform duration-700" fill="none"
                 stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
