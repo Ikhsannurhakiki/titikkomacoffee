@@ -14,14 +14,16 @@ Volt::route('/dashboard', 'dashboard')->name('dashboard');
 Volt::route('/attendance', 'attendance')->name('attendance');
 Volt::route('/product-cutomizer', 'product-cutomizer')->name('product-cutomizer');
 Volt::route('/order-list', 'order-list')->name('order-list');
+Volt::route('/role-login', 'role-login')->name('role-login');
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/home', function () {
-    return view('home');
-})->middleware(['auth', 'verified'])->name('home');
+// Route::get('/home', function () {
+//     return view('home');
+// });
+// ->middleware(['auth', 'verified'])->name('home');
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');

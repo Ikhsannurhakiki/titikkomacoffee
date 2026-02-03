@@ -3,6 +3,7 @@
 use Livewire\Volt\Component;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Staff;
 use App\Models\Order;
 use App\Models\ProductOption;
 use Illuminate\Support\Str;
@@ -12,6 +13,8 @@ new class extends Component {
     public $search = '';
     public $selectedCategory = null;
     public $cart = [];
+    public $customer_name = null;
+    public $table_number = null;
 
     public $showCustomizer = false;
     public $selectedProduct = null;
@@ -19,12 +22,14 @@ new class extends Component {
     public $customForm = [];
     public $latestOrder = null;
 
+    public $currentStaff;
     public $showPaymentModal = false;
     public $paidAmountInput = 0;
     public $changeAmount = 0;
 
     public function mount()
     {
+        $this->currentStaff = Staff::find(session('staff_id'));
         $this->cart = session()->get('cart', []);
     }
 
@@ -170,7 +175,7 @@ new class extends Component {
         try {
             $order = Order::create([
                 'invoice_number' => 'INV-' . strtoupper(Str::random(8)),
-                'staff_id' => 1,
+                'staff_id' => $this->currentStaff->id,
                 'subtotal' => $subtotal,
                 'tax_amount' => $tax,
                 'total_price' => $total,
@@ -245,30 +250,26 @@ new class extends Component {
 
     <aside class="flex flex-col h-screen bg-white shadow-xl border-l border-gray-200 w-full max-w-85 ml-auto">
         {{-- Header Keranjang --}}
-        <div class="p-3 flex items-center justify-between border-b border-gray-100 gap-2">
-            <button
-                class="flex items-center gap-1.5 bg-secondary px-2.5 py-2 rounded-lg text-xs font-semibold text-gray-200 hover:bg-primary whitespace-nowrap transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Customer
-            </button>
+        <div class="p-4 flex items-center justify-between border-b border-gray-100 bg-white">
+            <div class="flex flex-col">
+                <h2 class="text-sm font-black text-secondary uppercase tracking-[0.2em] leading-none">
+                    Cart
+                </h2>
+            </div>
 
-            <div class="flex gap-1.5">
-                <button wire:click="clearCart"
-                    class="p-2 bg-gray-100 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition"
-                    title="Clear Cart">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
-                <button class="p-2 bg-secondary rounded-lg text-gray-100 hover:bg-primary transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </button>
+            <div
+                class="relative flex items-center justify-center w-10 h-10 bg-primary/10 rounded-xl text-primary border border-primary/10 shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+                </svg>
+
+                @if (count($cart) > 0)
+                    <span
+                        class="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] font-black text-white border-2 border-white shadow-md animate-in zoom-in duration-300">
+                        {{ count($cart) }}
+                    </span>
+                @endif
             </div>
         </div>
 
@@ -314,7 +315,7 @@ new class extends Component {
 
         {{-- Rincian Pembayaran --}}
         <div class="bg-gray-50 p-4 border-t border-gray-200">
-            <div
+            {{-- <div
                 class="bg-white border border-gray-200 rounded-xl p-2.5 flex justify-between items-center mb-4 shadow-sm">
                 <span class="text-2xs uppercase font-black text-gray-400">Add Extras</span>
                 <div class="flex gap-3 text-2xs font-bold text-secondary uppercase">
@@ -322,6 +323,14 @@ new class extends Component {
                     <button class="hover:text-primary transition">Coupon</button>
                     <button class="hover:text-primary transition">Note</button>
                 </div>
+            </div> --}}
+
+            <div class="flex gap-3 mb-6">
+                <input type="text" wire:model.live="customer_name" placeholder="Customer name"
+                    class="flex-1 px-5 py-2 bg-white border border-gray-200 text-xs font-black tracking-widest  placeholder-gray-400 focus:border-amber-900 focus:ring-0 transition-all" />
+
+                <input type="number" wire:model.live="table_number" placeholder="00"
+                    class="w-24 px-2 py-2 bg-white border border-gray-200 text-xs font-black text-center tracking-widest placeholder-gray-400 focus:border-amber-900 focus:ring-0 transition-all" />
             </div>
 
             <div class="space-y-2 mb-4 px-1 text-[11px] font-bold uppercase tracking-wider text-gray-500">
@@ -340,20 +349,22 @@ new class extends Component {
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <button
-                    class="flex flex-col items-center justify-center bg-secondary text-white py-3 rounded-xl font-bold hover:bg-secondary/90 active:scale-95 transition-all text-2xs uppercase shadow-md">
-                    <svg class="w-5 h-5 mb-1 opacity-80" fill="none" stroke="currentColor" stroke-width="2.5"
+                <button wire:click="clearCart"
+                    class="flex flex-col items-center justify-center bg-secondary text-white py-3 rounded-xl font-bold hover:bg-secondary/90 active:scale-95 transition-all text-2xs uppercase shadow-md shadow-secondary/20">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2.5"
                         viewBox="0 0 24 24">
-                        <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Hold Order
+                    Clear cart
                 </button>
 
-                <button wire:click="openPayment" wire:loading.attr="disabled" {{ empty($cart) ? 'disabled' : '' }}
+                <button wire:click="openPayment" wire:loading.attr="disabled"
+                    {{ empty($cart) || empty($customer_name) || empty($table_number) ? 'disabled' : '' }}
                     class="w-full flex flex-col items-center justify-center py-3 rounded-xl font-bold transition-all text-2xs uppercase shadow-md 
-           {{ empty($cart)
-               ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
-               : 'bg-primary text-white hover:brightness-110 active:scale-95 shadow-primary/20' }}">
+        {{ empty($cart) || empty($customer_name) || empty($table_number)
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none border border-gray-200'
+            : 'bg-primary text-white hover:brightness-110 active:scale-95 shadow-primary/20' }}">
 
                     {{-- Loading Spinner --}}
                     <div wire:loading wire:target="openPayment">
@@ -459,13 +470,10 @@ new class extends Component {
         <div class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div
                 class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
-
-                {{-- Area Struk (Yang akan dicetak) --}}
                 <div id="receipt-print" class=" bg-white text-gray-800 font-mono text-sm">
                     <div class="text-center">
-                        <div class="flex justify-center items-center mb-0"> {{-- Margin bottom nolkan dulu --}}
+                        <div class="flex justify-center items-center mb-0">
                             <img src="{{ asset('images/logo-text-v2.png') }}" class="w-48 h-auto object-contain">
-                            {{-- Biarkan tinggi menyesuaikan secara alami --}}
                         </div>
                         <p class="text-2xs text-gray-500 font-medium">Jl. Sudirman No. 123, Pekanbaru</p>
                         <div class="border-b border-dashed my-4"></div>
@@ -485,6 +493,9 @@ new class extends Component {
                         }">
                             <span x-text="formatDate('{{ $latestOrder->created_at->toIso8601String() }}')"></span>
                         </p>
+                        <div class="text-center text-2xs text-secondary italic">
+                            Cashier : {{ $currentStaff->name }}
+                        </div>
                     </div>
 
                     <div class="px-6">
@@ -495,9 +506,9 @@ new class extends Component {
                                         <span>{{ $item->quantity }}x {{ $item->product->name }}</span>
                                         <span>{{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
                                     </div>
-                                    @if ($item->option_text)
+                                    @if ($item->options)
                                         <span class="text-2xs text-gray-500 italic">-
-                                            {{ $item->option_text }}</span>
+                                            {{ $item->options }}</span>
                                     @endif
                                 </div>
                             @endforeach
@@ -512,30 +523,35 @@ new class extends Component {
                                     class="font-bold">Rp{{ number_format($latestOrder->subtotal, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span>Pajak (10%)</span>
+                                <span>Tax (10%)</span>
                                 <span
                                     class="font-bold">Rp{{ number_format($latestOrder->tax_amount, 0, ',', '.') }}</span>
                             </div>
-
-                            {{-- Info Tunai & Kembalian --}}
-                            <div class="flex justify-between text-gray-500">
-                                <span>Tunai</span>
-                                <span>Rp{{ number_format($latestOrder->paid_amount, 0, ',', '.') }}</span>
+                            <div class="flex justify-between">
+                                <span>Total</span>
+                                <span
+                                    class="font-bold">Rp{{ number_format($latestOrder->total_price, 0, ',', '.') }}</span>
                             </div>
-                            <div class="flex justify-between text-gray-500 border-b border-gray-100 pb-1">
-                                <span>Kembalian</span>
-                                <span>Rp{{ number_format($latestOrder->change_amount, 0, ',', '.') }}</span>
+                            {{-- Pay and Change Info  --}}
+                            <div class="flex justify-between">
+                                <span>Pay</span>
+                                <span
+                                    class="font-bold">Rp{{ number_format($latestOrder->paid_amount, 0, ',', '.') }}</span>
                             </div>
-
-                            <div class="flex justify-between text-lg font-black pt-2 text-primary">
-                                <span>TOTAL</span>
-                                <span>Rp{{ number_format($latestOrder->total_price, 0, ',', '.') }}</span>
+                            <div class="flex justify-between">
+                                <span>Change</span>
+                                <span
+                                    class="font-bold">Rp{{ number_format($latestOrder->change_amount, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Order/Table</span>
+                                <span class="font-bold">{{ $customer_name }} / {{ $table_number }}</span>
                             </div>
                         </div>
 
-                        <div class="text-center mt-8 text-2xs text-gray-400 italic">
-                            Terima kasih atas kunjungan Anda!<br>
-                            Barang yang sudah dibeli tidak dapat ditukar.
+                        <div class="text-center mt-8 text-2xs text-secondary italic">
+                            We truly appreciate your visit!<br>
+                            Please note that purchased items are final and cannot be exchanged.<br>
                         </div>
                     </div>
                 </div>
@@ -544,11 +560,11 @@ new class extends Component {
                 <div class="p-4 bg-gray-50 flex gap-3 border-t">
                     <button onclick="window.print()"
                         class="flex-1 bg-secondary text-white py-3 rounded-xl font-bold text-xs uppercase hover:bg-secondary/90 transition">
-                        Cetak Struk
+                        Print
                     </button>
                     <button wire:click="$set('showReceipt', false)"
                         class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold text-xs uppercase hover:bg-gray-300 transition">
-                        Tutup
+                        Close
                     </button>
                 </div>
             </div>
@@ -617,9 +633,9 @@ new class extends Component {
                         </div>
                     </div>
 
-                    {{-- Kembalian --}}
+                    {{-- Change --}}
                     <div class="bg-secondary/5 p-4 rounded-2xl flex justify-between items-center">
-                        <span class="text-xs font-bold text-secondary uppercase">Kembalian</span>
+                        <span class="text-xs font-bold text-secondary uppercase">Change</span>
                         <span class="text-xl font-black text-secondary">
                             Rp{{ number_format($changeAmount, 0, ',', '.') }}
                         </span>

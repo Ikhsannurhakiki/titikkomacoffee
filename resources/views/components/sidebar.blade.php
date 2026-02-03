@@ -48,18 +48,21 @@
                         </x-navlink>
                     </div>
                 </li> --}}
-                <li>
-                    <div class="flex justify-center gap-4">
-                        {{-- Menu Cashier --}}
-                        <x-navlink href="{{ route('pos') }}" :active="request()->routeIs('pos')" wire:navigate title="Cashier">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
-                        </x-navlink>
-                    </div>
-                </li>
+                {{-- ROLE: ADMIN, CASHIER ONLY --}}
+                @if (in_array($currentStaff->position, ['cashier', 'admin']))
+                    <li>
+                        <div class="flex justify-center gap-4">
+                            {{-- Menu Cashier --}}
+                            <x-navlink href="{{ route('pos') }}" :active="request()->routeIs('pos')" wire:navigate title="Cashier">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </x-navlink>
+                        </div>
+                    </li>
+                @endif
                 <li>
                     <div class="flex justify-center gap-4">
                         {{-- Menu Orders --}}
@@ -139,7 +142,27 @@
                 </li>
             </ul>
             <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
-                <div class="flex justify-center gap-4">
+                @if ($currentStaff)
+                    <div class="flex items-center space-x-3">
+                        <div
+                            class="w-12 h-12 bg-amber-900 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-amber-900/20">
+                            {{ substr($currentStaff->name, 0, 1) }}
+                        </div>
+
+                        <div class="overflow-hidden">
+
+                            <h4 class="text-sm font-black text-gray-900 truncate uppercase">{{ $currentStaff->name }}
+                            </h4>
+                            <span
+                                class="px-2 py-0.5 bg-gray-900 text-[8px] text-white rounded-md font-bold uppercase tracking-tighter">
+                                {{ $currentStaff->position }}
+                            </span>
+                        </div>
+                    </div>
+                @else
+                    <p class="text-xs text-red-500 font-bold italic text-center">Session Expired</p>
+                @endif
+                {{-- <div class="flex justify-center gap-4">
                     <x-navlink href="/profile" title="Profile" :active="request()->is('profile*')">
                         <div class="w-7 h-7 rounded-full border-2 border-primary/20 overflow-hidden">
                             <img src="https://ui-avatars.com/api/?name=User+Name&background=31221A&color=fff"
@@ -147,7 +170,7 @@
                         </div>
                     </x-navlink>
                 </div>
-                </li>
+                </li> --}}
                 {{-- <li>
                 <div class="flex justify-center gap-4">
                     <x-navlink href="{{ route('logout') }}" title="Logout"

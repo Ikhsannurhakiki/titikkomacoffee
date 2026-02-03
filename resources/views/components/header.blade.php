@@ -4,7 +4,7 @@
 ])
 
 <div
-    {{ $attributes->merge(['class' => 'sticky top-0 z-[100] flex justify-between mb-6 items-center bg-white/80 backdrop-blur-md py-3.5 px-8 border-b border-gray-100 shadow-sm']) }}>
+    {{ $attributes->merge(['class' => 'sticky top-0 z-[50] flex justify-between mb-6 items-center bg-white/80 backdrop-blur-md py-3.5 px-8 border-b border-gray-100 shadow-sm']) }}>
     <div>
         <h1 class="text-2xl font-black text-secondary tracking-tight">{{ $title }}</h1>
     </div>

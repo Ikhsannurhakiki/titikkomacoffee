@@ -17,7 +17,7 @@
     <body class="font-sans antialiased bg-gray-100 overflow-hidden">
         <div class="flex h-screen w-full">
             <aside class="w-45 bg-white border-r shrink-0">
-                @include('components.sidebar')
+                <x-sidebar />
             </aside>
             <main id="main-content" class="w-full h-screen">
                 {{ $slot }}

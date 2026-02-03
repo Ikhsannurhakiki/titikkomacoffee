@@ -3,17 +3,21 @@
 namespace App\View\Components;
 
 use Closure;
-use Illuminate\Contracts\View\View;
+use App\Models\Staff;
 use Illuminate\View\Component;
+use Illuminate\Contracts\View\View;
 
 class sidebar extends Component
 {
     /**
      * Create a new component instance.
      */
+
+    public $currentStaff;
+
     public function __construct()
     {
-        //
+        $this->currentStaff = Staff::find(session('staff_id'));
     }
 
     /**
