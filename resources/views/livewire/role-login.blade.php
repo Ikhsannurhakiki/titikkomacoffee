@@ -28,41 +28,34 @@ new #[Layout('layouts.guest')] class extends Component {
 
         $staff = Staff::where('name', $this->name)->where('pin', $this->pin)->first();
 
-        if ($staff) {
-            $now = now('Asia/Jakarta');
-            $lastAttendance = Attendance::where('staff_id', $staff->id)
-                ->where('clock_in', '>=', $now->copy()->startOfDay())
-                ->latest()
-                ->first();
+        if (!$staff) {
+            $this->addError('auth_failed', 'Kombinasi Nama atau PIN tidak ditemukan.');
+            return;
+        }
 
-            if (!$lastAttendance || !empty($lastAttendance->clock_out)) {
-                Attendance::create([
-                    'staff_id' => $staff->id,
-                    'clock_in' => $now,
-                    'status' => 'present',
-                ]);
-                $this->lastStatus = 'MASUK';
-                sleep(4);
-                session(['staff_id' => $staff->id, 'staff_role' => $staff->role]);
-                return redirect()->to('/dashboard');
-            } else {
-                $clockIn = Carbon::parse($lastAttendance->clock_in);
-                $duration = (int) abs($clockIn->diffInMinutes($now)) * 60;
+        $now = now('Asia/Jakarta');
 
-                $lastAttendance->update([
-                    'clock_out' => $now,
-                    'duration_minutes' => $duration,
-                    'status' => 'completed',
-                ]);
-                $this->lastStatus = 'PULANG';
-            }
+        $activeAttendance = Attendance::where('staff_id', $staff->id)->whereNull('clock_out')->latest()->first();
 
+        session()->put('current_staff', [
+            'id' => $staff->id,
+            'name' => $staff->name,
+            'position' => $staff->position ?? 'staff',
+        ]);
+        session()->save();
+        if ($activeAttendance) {
+            return redirect()->to('/dashboard');
+        } else {
+            Attendance::create([
+                'staff_id' => $staff->id,
+                'clock_in' => $now,
+                'status' => 'present',
+            ]);
+
+            $this->lastStatus = 'CHECK-IN BERHASIL';
             $this->lastStaff = $staff;
             $this->showSuccess = true;
-            $this->reset(['pin', 'name']);
-            $this->dispatch('auto-reset');
-        } else {
-            $this->addError('auth_failed', 'Kombinasi Nama atau PIN tidak ditemukan.');
+            return redirect()->to('/dashboard');
         }
     }
 
@@ -150,6 +143,18 @@ new #[Layout('layouts.guest')] class extends Component {
                                 <span wire:loading wire:target="submitAbsen"
                                     class="text-[10px] font-black animate-pulse uppercase">Checking...</span>
                             </button>
+                        </div>
+                        <div class=" border-t border-gray-100 text-center">
+                            <p class="text-xs text-secondary mb-3">Bukan Staff? Masuk sebagai Pengelola</p>
+
+                            <a href="{{ route('login') }}"
+                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-xl font-bold text-[10px] text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-1.116-13.59c1.973-1.85 4.59-3.033 7.469-3.033 4.418 0 8 3.582 8 8 0 2.828-1.465 5.313-3.692 6.746" />
+                                </svg>
+                                Admin Portal
+                            </a>
                         </div>
                     </div>
                 </div>

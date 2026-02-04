@@ -45,7 +45,7 @@ new class extends Component {
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
-            'pin' => ['required', 'numeric', 'digits:5', $this->staffId ? 'unique:staffs,pin,' . $this->staffId : 'unique:staffs,pin'],
+            'pin' => ['required', 'numeric', 'digits:6', $this->staffId ? 'unique:staffs,pin,' . $this->staffId : 'unique:staffs,pin'],
             'join_date' => 'required|date',
             'image' => $this->staffId ? 'nullable|image|max:1024' : 'required|image|max:1024',
         ]);
@@ -207,9 +207,9 @@ new class extends Component {
                         <select wire:model="position"
                             class="w-full px-4 py-2.5 rounded-xl border-gray-200 text-sm shadow-sm">
                             <option value="">Pilih Posisi</option>
-                            <option value="Manager">Manager</option>
                             <option value="cashier">Cashier</option>
-                            <option value="kitchen">Kitchen</option>
+                            <option value="kitchen">Head Kitchen</option>
+                            <option value="kitchen crew">Kitchen Crew</option>
                             <option value="waiter">Waiter</option>
                         </select>
                         @error('position')

@@ -11,7 +11,7 @@
             'transition-all duration-300 ease-in-out border-2 ' .
             ($active
                 ? 'border-primary bg-secondary shadow-md translate-x-1 text-white shadow-secondary/20'
-                : 'border-transparent text-gray-600 hover:border-primary/20 hover:bg-gray-100 hover:translate-x-1 dark:hover:bg-secondary/20'),
+                : 'border-transparent text-primary hover:border-primary/20 hover:bg-gray-100 hover:translate-x-1 dark:hover:bg-secondary/20'),
     ]) }}>
 
     {{-- Icon: Warna berubah jadi putih jika active, jika tidak gunakan text-primary --}}

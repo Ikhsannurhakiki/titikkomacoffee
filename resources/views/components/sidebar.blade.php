@@ -10,7 +10,7 @@
         </svg>
     </button>
 
-    <aside id="default-sidebar" wire:persist="main-sidebar"
+    <aside id="default-sidebar"
         class="fixed top-0 left-0 z-40 w-45 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
         aria-label="Sidenav">
         <div class="flex items-center justify-center p-1 h-15 shrink-0">
@@ -49,7 +49,7 @@
                     </div>
                 </li> --}}
                 {{-- ROLE: ADMIN, CASHIER ONLY --}}
-                @if (in_array($currentStaff->position, ['cashier', 'admin']))
+                @if (in_array(data_get(session('current_staff'), 'position'), ['cashier', 'admin']))
                     <li>
                         <div class="flex justify-center gap-4">
                             {{-- Menu Cashier --}}
@@ -141,28 +141,81 @@
                     </div>
                 </li>
             </ul>
-            <ul class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
-                @if ($currentStaff)
-                    <div class="flex items-center space-x-3">
-                        <div
-                            class="w-12 h-12 bg-amber-900 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-amber-900/20">
-                            {{ substr($currentStaff->name, 0, 1) }}
+            <div class="pt-5 mt-5 border-t border-gray-200 dark:border-gray-700">
+                @if ($currentStaff || auth()->check())
+                    <div class="space-y-4">
+                        {{-- Info User (Visual Only) --}}
+                        <div class="flex items-center p-2">
+                            @if ($currentStaff)
+                                <div
+                                    class="w-10 h-10 bg-amber-900 rounded-xl flex items-center justify-center text-white font-black shadow-sm shrink-0">
+                                    {{ substr($currentStaff->name, 0, 1) }}
+                                </div>
+                                <div class="ml-3 overflow-hidden">
+                                    <p class="text-[11px] font-black text-gray-900 truncate uppercase tracking-tighter">
+                                        {{ $currentStaff->name }}
+                                    </p>
+                                    <p class="text-[9px] text-amber-700 font-bold uppercase">
+                                        {{ $currentStaff->position }}
+                                    </p>
+                                </div>
+                            @else
+                                <div
+                                    class="w-10 h-10 bg-indigo-700 rounded-xl flex items-center justify-center text-white font-black shadow-sm shrink-0">
+                                    {{ substr(auth()->user()->name, 0, 1) }}
+                                </div>
+                                <div class="ml-3 overflow-hidden">
+                                    <p
+                                        class="text-[11px] font-black text-gray-900 truncate uppercase tracking-tighter">
+                                        {{ auth()->user()->name }}
+                                    </p>
+                                    <p class="text-[9px] text-indigo-600 font-bold uppercase">Administrator</p>
+                                </div>
+                            @endif
                         </div>
 
-                        <div class="overflow-hidden">
+                        {{-- Link Menu - Dibuat List Terbuka (Fixed) --}}
+                        <div class="space-y-1">
+                            <a href="{{ route('profile.edit') }}"
+                                class="flex items-center px-4 py-2 text-[10px] font-black {{ request()->routeIs('profile.edit') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50' }} rounded-xl transition-colors uppercase tracking-widest">
+                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                Edit Profile
+                            </a>
 
-                            <h4 class="text-sm font-black text-gray-900 truncate uppercase">{{ $currentStaff->name }}
-                            </h4>
-                            <span
-                                class="px-2 py-0.5 bg-gray-900 text-[8px] text-white rounded-md font-bold uppercase tracking-tighter">
-                                {{ $currentStaff->position }}
-                            </span>
+                            @if ($currentStaff)
+                                <a href="{{ route('role-login') }}"
+                                    class="flex items-center px-4 py-2 text-[10px] font-black text-red-600 hover:bg-red-50 rounded-xl transition-colors uppercase tracking-widest">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    Clock Out Staff
+                                </a>
+                            @else
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full flex items-center px-4 py-2 text-[10px] font-black text-red-600 hover:bg-red-50 rounded-xl transition-colors uppercase tracking-widest">
+                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path
+                                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        Logout Admin
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
-                @else
-                    <p class="text-xs text-red-500 font-bold italic text-center">Session Expired</p>
                 @endif
-                {{-- <div class="flex justify-center gap-4">
+            </div>
+            {{-- <div class="flex justify-center gap-4">
                     <x-navlink href="/profile" title="Profile" :active="request()->is('profile*')">
                         <div class="w-7 h-7 rounded-full border-2 border-primary/20 overflow-hidden">
                             <img src="https://ui-avatars.com/api/?name=User+Name&background=31221A&color=fff"
@@ -171,7 +224,7 @@
                     </x-navlink>
                 </div>
                 </li> --}}
-                {{-- <li>
+            {{-- <li>
                 <div class="flex justify-center gap-4">
                     <x-navlink href="{{ route('logout') }}" title="Logout"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

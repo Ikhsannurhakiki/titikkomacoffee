@@ -11,10 +11,10 @@ with(
 ?>
 
 <div {{ $attributes->merge(['class' => 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden']) }}
-    wire:ignore>
+    wire:poll.10s.visible.keep-alive>
     <div class="p-4 border-b bg-primary/15 border-primary/25 flex justify-between items-center group">
         <h3 class="font-bold text-primary uppercase text-xs tracking-wider">Recent Orders</h3>
-        <a href="{{ route('dashboard') }}" wire:navigate
+        <a href="{{ route('order-list') }}" wire:navigate
             class="p-1 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all duration-300"
             title="Lihat Detail">
             <svg xmlns="http://www.w3.org/2000/01/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"

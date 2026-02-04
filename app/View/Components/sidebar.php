@@ -17,7 +17,8 @@ class sidebar extends Component
 
     public function __construct()
     {
-        $this->currentStaff = Staff::find(session('staff_id'));
+        $staffId = session('current_staff.id');
+        $this->currentStaff = $staffId ? Staff::find($staffId) : null;
     }
 
     /**
@@ -26,5 +27,43 @@ class sidebar extends Component
     public function render(): View|Closure|string
     {
         return view('components.sidebar');
+    }
+
+    public function processClockOut($inputPin)
+    {
+        $staffData = session('current_staff');
+
+        // 1. Ambil data staff asli dari DB untuk verifikasi PIN
+        $staff = \App\Models\Staff::find($staffData['id']);
+
+        if ($staff && $staff->pin === $inputPin) {
+            $now = now('Asia/Jakarta');
+
+            // 2. Cari absensi yang masih 'Open'
+            $attendance = \App\Models\Attendance::where('staff_id', $staff->id)
+                ->whereNull('clock_out')
+                ->latest()
+                ->first();
+
+            if ($attendance) {
+                $clockIn = \Illuminate\Support\Carbon::parse($attendance->clock_in);
+                $duration = (int) $clockIn->diffInMinutes($now);
+
+                $attendance->update([
+                    'clock_out' => $now,
+                    'duration_minutes' => $duration,
+                    'status' => 'completed',
+                ]);
+            }
+
+            // 3. Hapus Session & Redirect
+            session()->forget('current_staff');
+            session()->save();
+
+            return redirect()->route('role-login');
+        }
+
+        // Jika PIN salah
+        $this->dispatch('pin-error');
     }
 }

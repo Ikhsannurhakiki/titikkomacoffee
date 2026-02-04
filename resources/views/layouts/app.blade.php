@@ -17,7 +17,7 @@
     <body class="font-sans antialiased bg-gray-100 overflow-hidden">
         <div class="flex h-screen w-full">
             <aside class="w-45 bg-white border-r shrink-0">
-                <x-sidebar />
+                <livewire:sidebar />
             </aside>
             <main id="main-content" class="w-full h-screen">
                 {{ $slot }}
@@ -29,7 +29,6 @@
         <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            // Daftarkan plugin secara global
             FilePond.registerPlugin(
                 FilePondPluginFileValidateType,
                 FilePondPluginFileValidateSize,

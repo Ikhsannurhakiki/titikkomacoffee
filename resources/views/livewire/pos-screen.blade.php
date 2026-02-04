@@ -29,7 +29,7 @@ new class extends Component {
 
     public function mount()
     {
-        $this->currentStaff = Staff::find(session('staff_id'));
+        $this->currentStaff = Staff::find(session('current_staff.id'));
         $this->cart = session()->get('cart', []);
     }
 
@@ -114,6 +114,8 @@ new class extends Component {
     public function clearCart()
     {
         $this->cart = [];
+        $this->table_number = null;
+        $this->customer_name = null;
         $this->syncSession();
     }
 
@@ -183,6 +185,8 @@ new class extends Component {
                 'change_amount' => (float) $this->changeAmount,
                 'payment_method' => 'cash',
                 'status' => 'processing',
+                'customer_name' => $this->customer_name,
+                'table_number' => $this->table_number,
                 // 'notes' => null,
             ]);
 
@@ -196,15 +200,12 @@ new class extends Component {
                     'options' => $item['option_text'] ?? null,
                 ]);
             }
-
             DB::commit();
-
             $this->latestOrder = $order->load(['items']);
-            $this->clearCart();
             $this->showPaymentModal = false;
             $this->showReceipt = true;
-
             session()->flash('success', 'Transaksi Berhasil! No: ' . $order->invoice_number);
+            $this->clearCart();
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());

@@ -18,6 +18,8 @@ class Order extends Model
         'change_amount',
         'payment_method',
         'status',
+        'customer_name',
+        'table_number',
         'notes'
     ];
 

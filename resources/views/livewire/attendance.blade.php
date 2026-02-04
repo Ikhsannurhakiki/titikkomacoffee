@@ -196,9 +196,4 @@ new class extends Component {
             </div>
         @endif
     </div>
-
-    {{-- Footer --}}
-    <p class="mt-12 text-2xs font-bold text-gray-300 uppercase tracking-[0.3em]">
-        Titik Koma Coffee &bull; Secure Attendance Gate
-    </p>
 </div>

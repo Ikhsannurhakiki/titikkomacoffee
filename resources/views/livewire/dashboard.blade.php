@@ -9,7 +9,7 @@ use function Livewire\Volt\{state, with};
 
 with(
     fn() => [
-        'totalSalesToday' => Order::whereDate('created_at', now('Asia/Jakarta'))->sum('total_price'),
+        'totalSalesToday' => Order::whereDate('created_at', now('Asia/Jakarta'))->where('status', 'completed')->sum('total_price'),
         'totalOrdersToday' => Order::whereDate('created_at', now('Asia/Jakarta'))->count(),
         'totalOrdersFinishedToday' => Order::whereDate('created_at', now('Asia/Jakarta'))->where('status', 'completed')->count(),
         'outOfStockCount' => Product::where('is_available', 0)->count(),
@@ -36,7 +36,7 @@ with(
             </x-stat-card>
 
             <x-stat-card title="Completed Orders" value="{{ $totalOrdersFinishedToday }}/{{ $totalOrdersToday }}"
-                iconColor="secondary">
+                iconColor="secondary" wire:poll.10s.visible.keep-alive>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
@@ -51,7 +51,8 @@ with(
                 </svg>
             </x-stat-card>
 
-            <x-stat-card title="Staff On Duty" value="{{ $StaffOnDuty }} Staff" iconColor="primary">
+            <x-stat-card title="Staff On Duty" value="{{ $StaffOnDuty }} Staff" iconColor="primary"
+                wire:poll.20s.visible.keep-alive>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
