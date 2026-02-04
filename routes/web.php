@@ -38,7 +38,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Volt::route('/products', 'product-screen')->name('products');
     Volt::route('/staff-manager', 'staff-manager')->name('staff-manager');
     Volt::route('/staff-active', 'staff-active')->name('staff-active');
-    Volt::route('/product-form', 'product-form')->name('product-form');    // Profile Settings
+    Volt::route('/product-form', 'product-form')->name('product-form');
+    Volt::route('/reports', 'report')->name('reports');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
