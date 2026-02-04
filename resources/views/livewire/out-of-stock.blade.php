@@ -11,7 +11,7 @@ with(
 ?>
 
 <div {{ $attributes->merge(['class' => 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden']) }}
-    wire:ignore>
+    wire:poll.10s.visible.keep-alive>
     <div class="p-4 border-b bg-primary/15 border-primary/25 flex justify-between items-center group">
         <h3 class="font-bold uppercase text-xs tracking-wider flex items-center text-primary">
             <svg xmlns="http://www.w3.org/2000/01/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"

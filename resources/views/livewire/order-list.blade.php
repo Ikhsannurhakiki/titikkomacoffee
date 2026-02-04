@@ -40,6 +40,15 @@ new class extends Component {
             $this->dispatch('orderUpdated');
         }
     }
+
+    public function confirmDelete($id)
+    {
+        $order = Order::find($id);
+        if ($order) {
+            $order->delete();
+            session()->flash('message', 'Transaksi berhasil dihapus.');
+        }
+    }
 }; ?>
 
 <div class="h-screen flex flex-col bg-gray-50 overflow-hidden relative">
@@ -86,8 +95,8 @@ new class extends Component {
                                 {{ $order->status }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex justify-end gap-2">
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex justify-center gap-2">
                                 <button wire:click="viewOrder({{ $order->id }})"
                                     class="p-2 text-gray-400 hover:text-primary transition-all bg-gray-50 rounded-lg hover:bg-primary/10">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -97,6 +106,17 @@ new class extends Component {
                                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
                                 </button>
+                                @if ($isAdmin)
+                                    <button wire:click="confirmDelete({{ $order->id }})"
+                                        wire:confirm="Delete this transaction?"
+                                        class="p-2 text-gray-400 hover:text-red-600 transition-all bg-gray-50 rounded-lg hover:bg-red-50">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-1.123a1.5 1.5 0 00-1.5-1.5h-3a1.5 1.5 0 00-1.5 1.5v1.123m8.25 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                    </button>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -133,7 +153,7 @@ new class extends Component {
                     <div class="flex justify-between items-start mb-6">
                         <div>
                             <h3 class="text-xl font-black text-secondary uppercase tracking-tighter">
-                                {{ $selectedOrder->customer_name }} • Meja {{ $selectedOrder->table_number }}
+                                {{ $selectedOrder->customer_name }} • Table {{ $selectedOrder->table_number }}
                             </h3>
                             <p class="text-sm font-bold text-primary uppercase mt-1">
                                 Order #{{ $selectedOrder->invoice_number }}

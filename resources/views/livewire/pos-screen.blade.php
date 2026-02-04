@@ -29,6 +29,7 @@ new class extends Component {
 
     public function mount()
     {
+        $this->validateCart();
         $this->currentStaff = Staff::find(session('current_staff.id'));
         $this->cart = session()->get('cart', []);
     }
@@ -36,6 +37,18 @@ new class extends Component {
     public function setCategory($id = null)
     {
         $this->selectedCategory = $id;
+    }
+
+    public function validateCart()
+    {
+        foreach ($this->cart as $key => $item) {
+            $productStatus = \App\Models\Product::where('id', $item['id'])->value('status');
+            if ($productStatus === 'out_of_stock') {
+                unset($this->cart[$key]);
+                $this->dispatch('notify', ['message' => $item['name'] . ' removed from cart as it is now out of stock.']);
+            }
+        }
+        $this->syncSession();
     }
 
     public function openCustomizer($productId)
@@ -63,6 +76,11 @@ new class extends Component {
     public function confirmAddToCart()
     {
         if (!$this->selectedProduct) {
+            return;
+        }
+
+        if ($this->selectedProduct->status === 'out_of_stock') {
+            $this->showCustomizer = false;
             return;
         }
 
@@ -236,7 +254,8 @@ new class extends Component {
             </div>
 
             {{-- Grid Produk --}}
-            <div class="grid grid-cols-1 sm:grid-cols- md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols- md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-5 gap-3"
+                wire:poll.5s.visible.keep-alive>
                 @forelse($products as $product)
                     <div wire:click="openCustomizer({{ $product->id }})" wire:key="product-{{ $product->id }}">
                         <x-product-item-card :product="$product" />
@@ -546,7 +565,8 @@ new class extends Component {
                             </div>
                             <div class="flex justify-between">
                                 <span>Order/Table</span>
-                                <span class="font-bold">{{ $customer_name }} / {{ $table_number }}</span>
+                                <span class="font-bold">{{ $latestOrder->customer_name }} /
+                                    {{ $latestOrder->table_number }}</span>
                             </div>
                         </div>
 

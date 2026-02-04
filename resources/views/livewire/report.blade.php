@@ -4,8 +4,11 @@ use Livewire\Volt\Component;
 use App\Models\Order;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Livewire\WithPagination;
 
 new class extends Component {
+    use WithPagination;
+
     public $startDate;
     public $endDate;
 
@@ -21,7 +24,8 @@ new class extends Component {
             ->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59'])
             ->where('status', 'completed') // Sesuaikan status order Anda
             ->latest()
-            ->get();
+            ->paginate(7)
+            ->onEachSide(1);
 
         return [
             'orders' => $orders,
@@ -111,45 +115,37 @@ new class extends Component {
             </div>
 
             {{-- Tabel Transaksi --}}
-            <div class="bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-6 border-b border-gray-50 flex justify-between items-center">
-                    <h3 class="font-black text-primary uppercase tracking-widest text-sm">Riwayat Transaksi Terakhir
+            <div class="bg-primary rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6  flex justify-between items-center">
+                    <h3 class="font-black text-white uppercase tracking-widest text-sm">Latest Transaction
                     </h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50/50">
-                                <th class="px-6 py-4 text-[10px] font-black text-amber-900 uppercase">Invoice</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-amber-900 uppercase">Waktu</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-amber-900 uppercase">Staff</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-amber-900 uppercase text-right">Total
-                                </th>
+                    <x-table :headers="['Invoice', 'Date/Time', 'Staff', 'Total']">
+                        @forelse($orders as $order)
+                            <tr class="hover:bg-amber-50/30 transition-colors">
+                                <td class="px-6 py-4 font-black text-primary text-xs">#{{ $order->invoice_number }}
+                                </td>
+                                <td class="px-6 py-4 text-[11px] text-gray-500 font-bold">
+                                    {{ $order->created_at->format('d M Y, H:i') }}</td>
+                                <td class="px-6 py-4">
+                                    <span
+                                        class="px-3 py-1 bg-amber-100 text-amber-900 text-[9px] font-black rounded-full uppercase">{{ $order->staff->name ?? 'Admin' }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-right font-black text-primary text-xs">Rp
+                                    {{ number_format($order->total_price, 0, ',', '.') }}</td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @forelse($orders as $order)
-                                <tr class="hover:bg-amber-50/30 transition-colors">
-                                    <td class="px-6 py-4 font-black text-primary text-xs">#{{ $order->invoice_number }}
-                                    </td>
-                                    <td class="px-6 py-4 text-[11px] text-gray-500 font-bold">
-                                        {{ $order->created_at->format('d M Y, H:i') }}</td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="px-3 py-1 bg-amber-100 text-amber-900 text-[9px] font-black rounded-full uppercase">{{ $order->staff->name ?? 'Admin' }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right font-black text-primary text-xs">Rp
-                                        {{ number_format($order->total_price, 0, ',', '.') }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4"
-                                        class="px-6 py-10 text-center text-gray-400 font-bold italic text-sm">
-                                        Tidak ada transaksi ditemukan</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                        @empty
+                            <tr>
+                                <td colspan="4"
+                                    class="px-6 py-10 text-center text-gray-400 font-bold italic text-sm">
+                                    Tidak ada transaksi ditemukan</td>
+                            </tr>
+                        @endforelse
+                        <x-slot name="pagination">
+                            {{ $orders->links('vendor.pagination.tailwind') }}
+                        </x-slot>
+                    </x-table>
                 </div>
             </div>
         </div>
