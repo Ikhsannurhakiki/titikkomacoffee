@@ -24,7 +24,7 @@ new class extends Component {
             ->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59'])
             ->where('status', 'completed') // Sesuaikan status order Anda
             ->latest()
-            ->paginate(7)
+            ->paginate(6)
             ->onEachSide(1);
 
         return [
@@ -81,14 +81,14 @@ new class extends Component {
         </x-header>
         {{-- Header & Filter --}}
 
-        <div class="p-6">
+        <div class="px-6 py-2">
             {{-- Statistik Cards --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {{-- Total Pendapatan --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                {{-- Total Earnings --}}
                 <div
                     class="bg-primary p-6 rounded-[2.5rem] text-white shadow-xl shadow-primary/20 relative overflow-hidden">
                     <div class="relative z-10">
-                        <p class="text-[10px] font-black uppercase tracking-widest opacity-70">Total Penjualan</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest opacity-70">Total Earnings</p>
                         <h2 class="text-3xl font-black mt-1">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h2>
                     </div>
                     <svg class="absolute -right-4 -bottom-4 w-32 h-32 opacity-10" fill="currentColor"
@@ -100,14 +100,14 @@ new class extends Component {
 
                 {{-- Total Transaksi --}}
                 <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                    <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Jumlah Order</p>
+                    <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Total Orders</p>
                     <h2 class="text-3xl font-black text-primary mt-1">{{ $totalOrders }} <span
-                            class="text-sm font-bold opacity-50">Transaksi</span></h2>
+                            class="text-sm font-bold opacity-50">Transaction</span></h2>
                 </div>
 
                 {{-- Rata-rata Per Transaksi --}}
                 <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                    <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Rata-rata Penjualan</p>
+                    <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Earnings Rate</p>
                     <h2 class="text-3xl font-black text-primary mt-1">Rp
                         {{ number_format($averageTicket, 0, ',', '.') }}
                     </h2>

@@ -55,7 +55,8 @@ new #[Layout('layouts.guest')] class extends Component {
             $this->lastStatus = 'CHECK-IN BERHASIL';
             $this->lastStaff = $staff;
             $this->showSuccess = true;
-            return redirect()->to('/dashboard');
+
+            $this->dispatch('start-redirect-timer');
         }
     }
 
@@ -73,7 +74,6 @@ new #[Layout('layouts.guest')] class extends Component {
     x-on:auto-reset.window="countdown = 5; let timer = setInterval(() => { countdown--; if(countdown <= 0) { clearInterval(timer); $wire.resetForm() } }, 1000)">
 
     <div class="fixed inset-0 pointer-events-none">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-amber-900/5 blur-[120px] rounded-full"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-amber-600/5 blur-[120px] rounded-full"></div>
     </div>
 
@@ -148,12 +148,12 @@ new #[Layout('layouts.guest')] class extends Component {
                             <p class="text-xs text-secondary mb-3">Bukan Staff? Masuk sebagai Pengelola</p>
 
                             <a href="{{ route('login') }}"
-                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-xl font-bold text-[10px] text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-xl font-bold text-[10px] text-white uppercase tracking-widest hover:bg-secondary active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition ease-in-out duration-150">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-1.116-13.59c1.973-1.85 4.59-3.033 7.469-3.033 4.418 0 8 3.582 8 8 0 2.828-1.465 5.313-3.692 6.746" />
                                 </svg>
-                                Admin Portal
+                                Login Admin
                             </a>
                         </div>
                     </div>
@@ -173,13 +173,15 @@ new #[Layout('layouts.guest')] class extends Component {
                 <h2 class="text-4xl font-black text-gray-900 mb-2 uppercase tracking-tighter italic">
                     {{ $lastStatus }}!
                 </h2>
-                <p class="text-gray-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-10">Koneksi Berhasil & Data
+                <p class="text-gray-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-10">Koneksi Berhasil &
+                    Data
                     Tersimpan</p>
 
                 <div class="bg-gray-50 rounded-[2rem] p-8 mb-10 border border-gray-100 relative group transition-all">
                     <p class="text-[9px] font-black text-amber-900/40 uppercase tracking-[0.4em] mb-2">Authenticated
                         Staff</p>
-                    <h3 class="text-3xl font-black text-gray-900 uppercase tracking-tight">{{ $lastStaff->name }}</h3>
+                    <h3 class="text-3xl font-black text-gray-900 uppercase tracking-tight">{{ $lastStaff->name }}
+                    </h3>
 
                     <div
                         class="mt-6 pt-6 border-t border-gray-200/60 flex justify-center gap-8 text-[10px] font-black text-gray-400 uppercase tracking-widest">

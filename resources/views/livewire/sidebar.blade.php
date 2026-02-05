@@ -7,6 +7,7 @@ use App\Models\Attendance;
 new class extends Component {
     public $pin = '';
     public $showClockOutModal = false;
+    public $isSuccess = false;
 
     public function with()
     {
@@ -23,7 +24,6 @@ new class extends Component {
 
         if ($staff && $staff->pin === $this->pin) {
             $now = now('Asia/Jakarta');
-
             $attendance = Attendance::where('staff_id', $staff->id)->whereNull('clock_out')->latest()->first();
 
             if ($attendance) {
@@ -35,12 +35,20 @@ new class extends Component {
                 ]);
             }
 
-            session()->forget('current_staff');
-            return redirect()->route('role-login');
+            $this->isSuccess = true;
+
+            $this->dispatch('start-clockout-redirect');
+            return;
         }
 
         $this->addError('pin', 'PIN Salah!');
         $this->pin = '';
+    }
+
+    public function finalLogout()
+    {
+        session()->forget('current_staff');
+        return redirect()->route('role-login');
     }
 
     public function openModal()
@@ -242,7 +250,7 @@ new class extends Component {
         </div>
     </aside>
 
-    {{-- MODAL CLOCK OUT (Hanya muncul jika dipicu) --}}
+    {{-- MODAL CLOCK OUT  --}}
     @if ($showClockOutModal)
         <div
             class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fadeIn">
@@ -266,6 +274,60 @@ new class extends Component {
                         Selesai
                     </button>
                 </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($showClockOutModal)
+        <div x-data="{ countdown: 3 }"
+            x-on:start-clockout-redirect.window="let timer = setInterval(() => { countdown--; if(countdown <= 0) { clearInterval(timer); $wire.finalLogout() } }, 1000)"
+            class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fadeIn">
+
+            <div
+                class="bg-white w-full max-w-sm rounded-[3rem] p-8 text-center shadow-2xl animate-slideUp overflow-hidden relative">
+
+                @if (!$isSuccess)
+                    {{-- STEP 1: INPUT PIN --}}
+                    <h3 class="text-xl font-black text-gray-900 uppercase italic">Konfirmasi Pulang</h3>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase mt-1 mb-6 tracking-widest">Masukkan PIN
+                        Anda</p>
+
+                    <input type="password" wire:model="pin" maxlength="6" placeholder="••••••"
+                        class="w-full text-center text-3xl tracking-[0.5em] font-black py-5 bg-gray-50 border-none rounded-3xl focus:ring-2 focus:ring-amber-900/20 mb-4">
+
+                    @error('pin')
+                        <p class="text-xs text-red-600 font-bold mb-4 uppercase italic">{{ $message }}</p>
+                    @enderror
+
+                    <div class="flex gap-3">
+                        <button wire:click="$set('showClockOutModal', false)"
+                            class="flex-1 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Batal</button>
+                        <button wire:click="processClockOut"
+                            class="flex-1 py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-gray-900/20 hover:bg-red-600 transition-all">
+                            Selesai
+                        </button>
+                    </div>
+                @else
+                    {{-- STEP 2: SUKSES --}}
+                    <div class="py-4 animate-fadeIn">
+                        <div
+                            class="mb-6 inline-flex p-4 bg-green-500 text-white rounded-2xl shadow-lg shadow-green-500/30">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-black text-gray-900 uppercase italic">Sampai Jumpa!</h3>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase mt-2 mb-6 tracking-widest">
+                            Clock-out Berhasil Dicatat
+                        </p>
+
+                        <div
+                            class="text-[10px] font-black text-amber-900 bg-amber-50 py-2 px-4 rounded-full inline-block">
+                            Redirecting in <span x-text="countdown"></span>s...
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     @endif

@@ -150,7 +150,7 @@ new class extends Component {
 
     {{-- Table --}}
     <div class=" bg-white px-6 overflow-hidden">
-        <x-table :headers="['Item Name', 'Category', 'Price', 'Availablity', 'Action']">
+        <x-table :headers="['Item Name', 'Category', 'Price', 'Availablity', $isAdmin ? 'Action' : null]">
             @forelse($products as $product)
                 <tr class="hover:bg-gray-50/50 transition text-center">
                     <td class="p-4 flex items-center gap-3 ">
@@ -175,24 +175,26 @@ new class extends Component {
                                 class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $product->is_available ? 'translate-x-5' : 'translate-x-0' }}"></span>
                         </button>
                     </td>
-                    <td class="p-4 text-center">
-                        <div class="flex justify-center gap-2">
-                            <button wire:click="openModal({{ $product->id }})"
-                                class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
-                            <button wire:confirm="Hapus produk ini?" wire:click="delete({{ $product->id }})"
-                                class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
+                    @if ($isAdmin)
+                        <td class="p-4 text-center">
+                            <div class="flex justify-center gap-2">
+                                <button wire:click="openModal({{ $product->id }})"
+                                    class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button wire:confirm="Hapus produk ini?" wire:click="delete({{ $product->id }})"
+                                    class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    @endif
                 </tr>
             @empty
                 <tr>

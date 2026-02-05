@@ -67,13 +67,4 @@ with(
             </div>
         @endforelse
     </div>
-
-    @if ($lowStockProducts->count() > 0)
-        <div class="mt-5">
-            <a href="#"
-                class="block w-full text-center py-2 bg-gray-50 hover:bg-gray-100 text-gray-500 text-2xs font-bold uppercase rounded-xl transition-colors">
-                Kelola Inventaris
-            </a>
-        </div>
-    @endif
 </div>
